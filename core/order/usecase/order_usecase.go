@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -16,6 +17,7 @@ import (
 	"github.com/mqnoy/logistics-app/core/pkg/cerror"
 	transaction "github.com/mqnoy/logistics-app/core/transaction_manager/repository"
 	"github.com/mqnoy/logistics-app/core/util"
+	"gorm.io/gorm"
 )
 
 type orderUseCase struct {
@@ -213,4 +215,25 @@ func (u *orderUseCase) ComposeListOrder(m []*model.Order) []dto.OrderResponse {
 	}
 
 	return results
+}
+
+func (u *orderUseCase) DetailOrder(param dto.DetailParam) (resp dto.OrderResponse, err error) {
+	orderRow, err := u.orderRepo.SelectOrderById(param.ID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return resp, cerror.WrapError(http.StatusNotFound, fmt.Errorf("resource not found"))
+		}
+
+		log.Println(err)
+		return resp, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	// compose order
+	resp, err = u.ComposeOrder(orderRow)
+	if err != nil {
+		log.Println(err)
+		return resp, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	return resp, nil
 }
