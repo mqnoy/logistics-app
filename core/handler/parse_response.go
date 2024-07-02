@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
-	"github.com/mqnoy/logistics-app/core/handler/pkg/cerror"
+	"github.com/mqnoy/logistics-app/core/pkg/cerror"
 )
 
 type ErrorResponse struct {
