@@ -93,6 +93,9 @@ func AppHandler(appctx AppCtx) http.Handler {
 	orderUseCase := _orderUseCase.New(txManager, orderRepoMySQL, goodUseCase)
 	userUseCase := _userUsecase.New(userRepoMySQL)
 
+	// Initialize Middleware
+	authMiddleware := middleware.NewAuthorizationMiddleware(userUseCase)
+
 	// Fallback
 	mux.NotFound(handler.FallbackHandler)
 
