@@ -6,7 +6,7 @@ services:
       - MYSQL_ROOT_PASSWORD=12345678
       - TZ=UTC 
     ports:
-      - 33061:3306
+      - 3306:3306
     volumes:
       - ./.docker-files/mariadb/etc/my.cnf:/etc/mysql/my.cnf
       - ./.docker-files/mariadb/etc/conf.d:/etc/mysql/conf.d
