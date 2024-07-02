@@ -77,7 +77,7 @@ func AppHandler(appctx AppCtx) http.Handler {
 	goodRepoMySQL := _goodRepoMySQL.New(appctx.mysqlDB)
 
 	// Initialize UseCase
-	goodUseCase := _godUseCase.New(goodRepoMySQL)
+	goodUseCase := _godUseCase.New(txManager, goodRepoMySQL)
 
 	// Fallback
 	mux.NotFound(handler.FallbackHandler)

@@ -11,16 +11,19 @@ import (
 	"github.com/mqnoy/logistics-app/core/dto"
 	"github.com/mqnoy/logistics-app/core/model"
 	"github.com/mqnoy/logistics-app/core/pkg/cerror"
+	transaction "github.com/mqnoy/logistics-app/core/transaction_manager/repository"
 	"gorm.io/gorm"
 )
 
 type goodUseCase struct {
-	goodRepo domain.GoodRepository
+	txManager transaction.TransactionManager
+	goodRepo  domain.GoodRepository
 }
 
-func New(goodRepo domain.GoodRepository) domain.GoodUseCase {
+func New(txManager transaction.TransactionManager, goodRepo domain.GoodRepository) domain.GoodUseCase {
 	return &goodUseCase{
-		goodRepo: goodRepo,
+		txManager: txManager,
+		goodRepo:  goodRepo,
 	}
 }
 
