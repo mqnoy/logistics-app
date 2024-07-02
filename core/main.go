@@ -100,7 +100,7 @@ func AppHandler(appctx AppCtx) http.Handler {
 	mux.NotFound(handler.FallbackHandler)
 
 	// Initialize handler
-	_goodHttpDelivery.New(mux, goodUseCase)
+	_goodHttpDelivery.New(mux, authMiddleware, goodUseCase)
 	_orderHttpDelivery.New(mux, orderUseCase)
 	_userHttpDelivery.New(mux, userUseCase)
 

@@ -18,7 +18,7 @@ type goodHandler struct {
 	goodUseCase domain.GoodUseCase
 }
 
-func New(mux *chi.Mux, goodUseCase domain.GoodUseCase) {
+func New(mux *chi.Mux, middlewareAuthorization domain.MiddlewareAuthorization, goodUseCase domain.GoodUseCase) {
 
 	handler := goodHandler{
 		mux:         mux,
@@ -26,6 +26,7 @@ func New(mux *chi.Mux, goodUseCase domain.GoodUseCase) {
 	}
 
 	mux.Route("/goods", func(r chi.Router) {
+		r.Use(middlewareAuthorization.AuthorizationJWT)
 		r.Post("/", handler.PostCreateGood)
 		r.Get("/{id}", handler.GetDetailGood)
 		r.Get("/", handler.GetListGoods)
@@ -50,6 +51,7 @@ func (h goodHandler) PostCreateGood(w http.ResponseWriter, r *http.Request) {
 
 	param := dto.CreateParam[dto.GoodCreateRequest]{
 		CreateValue: request,
+		Session:     dto.GetAuthorizedUser(r.Context()),
 	}
 
 	// call usecase
@@ -60,7 +62,8 @@ func (h goodHandler) PostCreateGood(w http.ResponseWriter, r *http.Request) {
 
 func (h goodHandler) GetDetailGood(w http.ResponseWriter, r *http.Request) {
 	param := dto.DetailParam{
-		ID: chi.URLParam(r, "id"),
+		ID:      chi.URLParam(r, "id"),
+		Session: dto.GetAuthorizedUser(r.Context()),
 	}
 
 	// Call usecase
@@ -91,6 +94,7 @@ func (h goodHandler) GetListGoods(w http.ResponseWriter, r *http.Request) {
 			Limit:  limit,
 			Offset: offset,
 		},
+		Session: dto.GetAuthorizedUser(r.Context()),
 	}
 
 	// Call usecase
@@ -115,6 +119,7 @@ func (h goodHandler) PutUpdateGood(w http.ResponseWriter, r *http.Request) {
 	param := dto.UpdateParam[dto.GoodUpdateRequest]{
 		UpdateValue: request,
 		ID:          chi.URLParam(r, "id"),
+		Session:     dto.GetAuthorizedUser(r.Context()),
 	}
 
 	// Call usecase
@@ -125,7 +130,8 @@ func (h goodHandler) PutUpdateGood(w http.ResponseWriter, r *http.Request) {
 
 func (h goodHandler) DeleteGood(w http.ResponseWriter, r *http.Request) {
 	param := dto.DetailParam{
-		ID: chi.URLParam(r, "id"),
+		ID:      chi.URLParam(r, "id"),
+		Session: dto.GetAuthorizedUser(r.Context()),
 	}
 
 	// Call usecase
