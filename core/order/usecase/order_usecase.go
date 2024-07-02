@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 
 	"github.com/mqnoy/logistics-app/core/constant"
@@ -103,6 +104,7 @@ func (u *orderUseCase) ComposeOrder(m *model.Order) (resp dto.OrderResponse, err
 	}
 
 	return dto.OrderResponse{
+		ID:        m.ID,
 		RequestAt: util.DateToEpoch(m.RequestAt),
 		Type: dto.OrderTypeResponse{
 			ID:   m.Type,
@@ -172,4 +174,45 @@ func (u *orderUseCase) OrderOut(ctx context.Context, param dto.CreateParam[dto.O
 	}
 
 	return resp, nil
+}
+
+func (u *orderUseCase) ListOrders(param dto.ListParam[dto.FilterOrderParams]) (resp dto.ListResponse[dto.OrderResponse], err error) {
+	pagination := param.Pagination
+	param.Pagination.Offset = (pagination.Page - 1) * pagination.Limit
+
+	rows, err := u.orderRepo.SelectAndCountOrder(param)
+	if err != nil {
+		log.Println(err)
+		return resp, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	// Create pagination metadata
+	totalItems := rows.Count
+	totalPages := int(math.Ceil(float64(totalItems) / float64(pagination.Limit)))
+
+	return dto.ListResponse[dto.OrderResponse]{
+		Rows: u.ComposeListOrder(rows.Rows),
+		MetaData: dto.Pagination{
+			Page:       pagination.Page,
+			Limit:      pagination.Limit,
+			TotalPages: totalPages,
+			TotalItems: totalItems,
+		},
+	}, nil
+}
+
+func (u *orderUseCase) ComposeListOrder(m []*model.Order) []dto.OrderResponse {
+	results := make([]dto.OrderResponse, len(m))
+	for idx, el := range m {
+		// compose order
+		resp, err := u.ComposeOrder(el)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		results[idx] = resp
+	}
+
+	return results
 }

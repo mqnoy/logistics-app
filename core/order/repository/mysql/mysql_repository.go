@@ -4,8 +4,11 @@ import (
 	"log"
 
 	"github.com/mqnoy/logistics-app/core/domain"
+	"github.com/mqnoy/logistics-app/core/dto"
 	"github.com/mqnoy/logistics-app/core/model"
+	"github.com/mqnoy/logistics-app/core/util"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type mysqlOrderRepository struct {
@@ -31,4 +34,61 @@ func (m mysqlOrderRepository) WithTrx(trxHandle *gorm.DB) domain.OrderRepository
 func (m mysqlOrderRepository) InsertOrder(row model.Order) (*model.Order, error) {
 	err := m.db.Create(&row).Error
 	return &row, err
+}
+
+func (m mysqlOrderRepository) SelectAndCountOrder(param dto.ListParam[dto.FilterOrderParams]) (result dto.SelectAndCount[model.Order], err error) {
+	var rows []*model.Order
+	var count int64
+
+	filters := param.Filters
+	orders := param.Orders
+	pagination := param.Pagination
+	whereClause := clause.Where{}
+
+	if len(filters.RequestAt) > 1 {
+		from, err := util.NumberToEpoch(filters.RequestAt[0])
+		if err != nil {
+			return result, err
+		}
+
+		to, err := util.NumberToEpoch(filters.RequestAt[1])
+		if err != nil {
+			return result, err
+		}
+		expressions := []clause.Expression{
+			clause.Expr{
+				SQL: "request_at BETWEEN ? AND ?", Vars: []interface{}{
+					from, to,
+				},
+			},
+		}
+		whereClause.Exprs = append(whereClause.Exprs, clause.Where{Exprs: expressions})
+
+	}
+
+	if filters.OrderType > 0 {
+		whereClause.Exprs = append(whereClause.Exprs, clause.Eq{
+			Column: clause.Column{Name: "type"},
+			Value:  filters.OrderType,
+		})
+	}
+
+	mDB := m.db
+	if len(whereClause.Exprs) > 0 {
+		mDB = m.db.Clauses(whereClause)
+	}
+
+	mDB.Model(&model.Order{}).Count(&count)
+
+	if err = mDB.
+		Limit(pagination.Limit).Offset(pagination.Offset).
+		Order(orders).
+		Find(&rows).Error; err != nil {
+		return result, err
+	}
+
+	return dto.SelectAndCount[model.Order]{
+		Rows:  rows,
+		Count: count,
+	}, nil
 }

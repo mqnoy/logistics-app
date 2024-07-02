@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
@@ -28,6 +29,8 @@ func New(mux *chi.Mux, middlewareAuthorization domain.MiddlewareAuthorization, o
 		r.Use(middlewareAuthorization.AuthorizationJWT)
 		r.Post("/goods/in", handler.PostOrderIn)
 		r.Post("/goods/out", handler.PostOrderOut)
+		r.Get("/goods", handler.GetListOrders)
+
 	})
 
 }
@@ -78,4 +81,32 @@ func (h orderHandler) PostOrderOut(w http.ResponseWriter, r *http.Request) {
 	result, err := h.orderUseCase.OrderOut(r.Context(), param)
 
 	handler.ParseResponse(w, r, "PostOrderOut", result, err)
+}
+
+func (h orderHandler) GetListOrders(w http.ResponseWriter, r *http.Request) {
+	page, _ := strconv.Atoi(handler.DefaultQuery(r, "page", "1"))
+	limit, _ := strconv.Atoi(handler.DefaultQuery(r, "limit", "10"))
+	offset, _ := strconv.Atoi(handler.DefaultQuery(r, "offset", "0"))
+	orderType, _ := strconv.Atoi(handler.DefaultQuery(r, "type", "0"))
+	requestAtRange := handler.ParseQueryToInt64Array(handler.DefaultQuery(r, "request_at_range", "[]"))
+	orders := handler.DefaultQuery(r, "orders", "id desc")
+
+	param := dto.ListParam[dto.FilterOrderParams]{
+		Filters: dto.FilterOrderParams{
+			RequestAt: requestAtRange,
+			OrderType: orderType,
+		},
+		Orders: orders,
+		Pagination: dto.Pagination{
+			Page:   page,
+			Limit:  limit,
+			Offset: offset,
+		},
+		Session: dto.GetAuthorizedUser(r.Context()),
+	}
+
+	// Call usecase
+	result, err := h.orderUseCase.ListOrders(param)
+
+	handler.ParseResponse(w, r, "GetListOrders", result, err)
 }
