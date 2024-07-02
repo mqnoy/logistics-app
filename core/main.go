@@ -3,33 +3,41 @@ package main
 import (
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/mqnoy/logistics-app/core/config"
 	"github.com/mqnoy/logistics-app/core/handler"
 	"github.com/mqnoy/logistics-app/core/middleware"
 	"gorm.io/gorm"
 )
 
 var (
-	Address = "0.0.0.0:8080"
+	appCfg config.Configuration
 )
 
 type AppCtx struct {
 	mysqlDB *gorm.DB
 }
 
+func init() {
+	appCfg = config.AppConfig
+}
+
 func main() {
-	appCtx := AppCtx{}
+	appCtx := AppCtx{
+		mysqlDB: config.InitMySQLDatabase(appCfg),
+	}
+
 
 	// The HTTP Server
+	addr := appCfg.Server.Address()
 	server := &http.Server{
-		Addr:    Address,
+		Addr:    addr,
 		Handler: AppHandler(appCtx),
 	}
 
-	log.Println("server started..")
+	log.Printf("server running on %s\n", addr)
 
 	// Run the server
 	err := server.ListenAndServe()
@@ -44,6 +52,7 @@ func AppHandler(appctx AppCtx) http.Handler {
 	// Setup middleware
 	mux.Use(chiMiddleware.RealIP)
 	mux.Use(middleware.PanicRecoverer)
+
 
 	// Fallback
 	mux.NotFound(handler.FallbackHandler)
