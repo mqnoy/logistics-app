@@ -115,3 +115,61 @@ func (u *orderUseCase) ComposeOrder(m *model.Order) (resp dto.OrderResponse, err
 		Timestamp: dto.ComposeTimestamp(m.TimestampColumn),
 	}, nil
 }
+
+func (u *orderUseCase) OrderOut(ctx context.Context, param dto.CreateParam[dto.OrderInRequest]) (resp dto.OrderResponse, err error) {
+	createValue := param.CreateValue
+
+	// perform snapshot good
+	goodSnapshot, goodRow, err := u.goodUseCase.SnapshotGood(createValue.Good.Code)
+	if err != nil {
+		log.Println(err)
+		return resp, err
+	}
+
+	// Persist insert order
+	order := model.Order{
+		RequestAt: util.GetCurrentTime(),
+		Total:     createValue.Total,
+		GoodSnapShotColumn: model.GoodSnapShotColumn{
+			GoodSnapShot: goodSnapshot.Snapshot,
+		},
+		Type: int(enum.ORDER_OUT),
+	}
+
+	// perform with transaction
+	trx := u.txManager.AcquireTx(ctx)
+	ctx = context.WithValue(ctx, constant.TrxKey, trx)
+
+	// persist insert order
+	orderRow, err := u.orderRepo.WithTrx(trx).InsertOrder(order)
+	if err != nil {
+		// rollback transaction
+		u.txManager.CommitOrRollback(ctx, trx, true)
+
+		log.Println(err)
+		return resp, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	// call goodUseCase for decreasing stock
+	if err := u.goodUseCase.DecreaseStock(ctx, dto.UpdateParam[dto.GoodStockRequest]{
+		ID: goodRow.ID,
+		UpdateValue: dto.GoodStockRequest{
+			Total: createValue.Total,
+		},
+	}); err != nil {
+		// rollback transaction on DecreaseStock
+		return resp, err
+	}
+
+	// commit transaction
+	u.txManager.CommitOrRollback(ctx, trx, false)
+
+	// compose order
+	resp, err = u.ComposeOrder(orderRow)
+	if err != nil {
+		log.Println(err)
+		return resp, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	return resp, nil
+}

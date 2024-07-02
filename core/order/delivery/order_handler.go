@@ -26,6 +26,7 @@ func New(mux *chi.Mux, orderUseCase domain.OrderUseCase) {
 
 	mux.Route("/orders", func(r chi.Router) {
 		r.Post("/goods/in", handler.PostOrderIn)
+		r.Post("/goods/out", handler.PostOrderOut)
 	})
 
 }
@@ -51,4 +52,27 @@ func (h orderHandler) PostOrderIn(w http.ResponseWriter, r *http.Request) {
 	result, err := h.orderUseCase.OrderIn(r.Context(), param)
 
 	handler.ParseResponse(w, r, "PostOrderIn", result, err)
+}
+
+func (h orderHandler) PostOrderOut(w http.ResponseWriter, r *http.Request) {
+	var request dto.OrderInRequest
+	if err := render.Bind(r, &request); err != nil {
+		handler.ParseResponse(w, r, "", err, cerror.WrapError(http.StatusBadRequest, err))
+		return
+	}
+
+	// validate payload
+	if err := cvalidator.ValidateStruct(&request); err != nil {
+		handler.ParseToErrorValidation(w, r, http.StatusBadRequest, cvalidator.ErrorValidator, err)
+		return
+	}
+
+	param := dto.CreateParam[dto.OrderInRequest]{
+		CreateValue: request,
+	}
+
+	// call usecase
+	result, err := h.orderUseCase.OrderOut(r.Context(), param)
+
+	handler.ParseResponse(w, r, "PostOrderOut", result, err)
 }
