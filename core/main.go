@@ -20,6 +20,10 @@ import (
 	_orderUseCase "github.com/mqnoy/logistics-app/core/order/usecase"
 
 	transaction "github.com/mqnoy/logistics-app/core/transaction_manager/repository"
+
+	_userHttpDelivery "github.com/mqnoy/logistics-app/core/user/delivery/http"
+	_userRepoMySQL "github.com/mqnoy/logistics-app/core/user/repository/mysql"
+	_userUsecase "github.com/mqnoy/logistics-app/core/user/usecase"
 )
 
 var (
@@ -45,6 +49,7 @@ func main() {
 			&model.Good{},
 			&model.GoodStock{},
 			&model.Order{},
+			&model.User{},
 		)
 
 		if err != nil {
@@ -81,10 +86,12 @@ func AppHandler(appctx AppCtx) http.Handler {
 	// Initialize Repository
 	goodRepoMySQL := _goodRepoMySQL.New(appctx.mysqlDB)
 	orderRepoMySQL := _orderRepoMySQL.New(appctx.mysqlDB)
+	userRepoMySQL := _userRepoMySQL.New(appctx.mysqlDB)
 
 	// Initialize UseCase
 	goodUseCase := _godUseCase.New(txManager, goodRepoMySQL)
 	orderUseCase := _orderUseCase.New(txManager, orderRepoMySQL, goodUseCase)
+	userUseCase := _userUsecase.New(userRepoMySQL)
 
 	// Fallback
 	mux.NotFound(handler.FallbackHandler)
@@ -92,6 +99,7 @@ func AppHandler(appctx AppCtx) http.Handler {
 	// Initialize handler
 	_goodHttpDelivery.New(mux, goodUseCase)
 	_orderHttpDelivery.New(mux, orderUseCase)
+	_userHttpDelivery.New(mux, userUseCase)
 
 	// Print all routes
 	chi.Walk(mux, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
