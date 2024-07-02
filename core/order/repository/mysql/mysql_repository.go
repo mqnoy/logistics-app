@@ -92,3 +92,13 @@ func (m mysqlOrderRepository) SelectAndCountOrder(param dto.ListParam[dto.Filter
 		Count: count,
 	}, nil
 }
+
+func (m mysqlOrderRepository) SelectOrderById(id string) (row *model.Order, err error) {
+	if err := m.db.
+		First(&row, "id = ?", id).
+		Error; err != nil {
+		return nil, err
+	}
+
+	return row, nil
+}

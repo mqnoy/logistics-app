@@ -30,7 +30,7 @@ func New(mux *chi.Mux, middlewareAuthorization domain.MiddlewareAuthorization, o
 		r.Post("/goods/in", handler.PostOrderIn)
 		r.Post("/goods/out", handler.PostOrderOut)
 		r.Get("/goods", handler.GetListOrders)
-
+		r.Get("/{id}", handler.GetDetailOrder)
 	})
 
 }
@@ -109,4 +109,16 @@ func (h orderHandler) GetListOrders(w http.ResponseWriter, r *http.Request) {
 	result, err := h.orderUseCase.ListOrders(param)
 
 	handler.ParseResponse(w, r, "GetListOrders", result, err)
+}
+
+func (h orderHandler) GetDetailOrder(w http.ResponseWriter, r *http.Request) {
+	param := dto.DetailParam{
+		ID:      chi.URLParam(r, "id"),
+		Session: dto.GetAuthorizedUser(r.Context()),
+	}
+
+	// Call usecase
+	result, err := h.orderUseCase.DetailOrder(param)
+
+	handler.ParseResponse(w, r, "GetDetailOrder", result, err)
 }
