@@ -7,6 +7,7 @@ type GoodOrderResponse struct {
 }
 
 type OrderResponse struct {
+	ID        string            `json:"id"`
 	RequestAt int64             `json:"request_at"`
 	Type      OrderTypeResponse `json:"type"`
 	Good      GoodOrderResponse `json:"good"`
@@ -30,4 +31,9 @@ type OrderInRequest struct {
 
 func (t *OrderInRequest) Bind(r *http.Request) error {
 	return nil
+}
+
+type FilterOrderParams struct {
+	RequestAt []int64
+	OrderType int
 }

@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -26,4 +28,12 @@ func ParseQueryToBool(query string) *bool {
 	}
 
 	return &result
+}
+
+func ParseQueryToInt64Array(query string) (result []int64) {
+	if err := json.Unmarshal([]byte(query), &result); err != nil {
+		log.Println(err)
+		return result
+	}
+	return result
 }
