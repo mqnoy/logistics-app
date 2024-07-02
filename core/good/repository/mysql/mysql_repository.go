@@ -18,6 +18,16 @@ func New(db *gorm.DB) domain.GoodRepository {
 	}
 }
 
+func (m mysqlGoodRepository) WithTrx(trxHandle *gorm.DB) domain.GoodRepository {
+	if trxHandle == nil {
+		log.Println("transaction not found")
+		return m
+	}
+	m.db = trxHandle
+
+	return m
+}
+
 func (m mysqlGoodRepository) InsertGood(row model.Good) (*model.Good, error) {
 	err := m.db.Create(&row).Error
 	return &row, err
