@@ -83,6 +83,32 @@ func (u *goodUseCase) ComposeGood(m *model.Good) dto.GoodResponse {
 		Name:        m.Name,
 		Description: m.Description,
 		IsActive:    m.IsActive,
-		Timestamp:   dto.ComposeTimestamp(m.TimestampColumn),
+		GoodStockResponse: dto.GoodStockResponse{
+			Total: m.GoodStock.Total,
+		},
+		Timestamp: dto.ComposeTimestamp(m.TimestampColumn),
 	}
+}
+
+func (u *goodUseCase) DetailGoodById(id string) (row *model.Good, err error) {
+	row, err = u.goodRepo.SelectGoodById(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, cerror.WrapError(http.StatusNotFound, fmt.Errorf("resource not found"))
+		}
+
+		log.Println(err)
+		return nil, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	return row, nil
+}
+
+func (u *goodUseCase) DetailGood(param dto.DetailParam) (resp dto.GoodResponse, err error) {
+	row, err := u.DetailGoodById(param.ID)
+	if err != nil {
+		return resp, err
+	}
+
+	return u.ComposeGood(row), nil
 }
