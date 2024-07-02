@@ -30,6 +30,7 @@ func New(mux *chi.Mux, goodUseCase domain.GoodUseCase) {
 		r.Get("/{id}", handler.GetDetailGood)
 		r.Get("/", handler.GetListGoods)
 		r.Put("/{id}", handler.PutUpdateGood)
+		r.Delete("/{id}", handler.DeleteGood)
 	})
 
 }
@@ -120,4 +121,15 @@ func (h goodHandler) PutUpdateGood(w http.ResponseWriter, r *http.Request) {
 	result, err := h.goodUseCase.UpdateGood(param)
 
 	handler.ParseResponse(w, r, "PutUpdateGood", result, err)
+}
+
+func (h goodHandler) DeleteGood(w http.ResponseWriter, r *http.Request) {
+	param := dto.DetailParam{
+		ID: chi.URLParam(r, "id"),
+	}
+
+	// Call usecase
+	err := h.goodUseCase.DeleteGood(param)
+
+	handler.ParseResponse(w, r, "DeleteGood", nil, err)
 }
