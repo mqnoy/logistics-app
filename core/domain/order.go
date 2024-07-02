@@ -10,6 +10,7 @@ import (
 
 type OrderUseCase interface {
 	OrderIn(ctx context.Context, param dto.CreateParam[dto.OrderInRequest]) (resp dto.OrderResponse, err error)
+	OrderOut(ctx context.Context, param dto.CreateParam[dto.OrderInRequest]) (resp dto.OrderResponse, err error)
 }
 
 type OrderRepository interface {

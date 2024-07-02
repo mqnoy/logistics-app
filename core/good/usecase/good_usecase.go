@@ -279,3 +279,57 @@ func (u *goodUseCase) IncreaseStock(ctx context.Context, param dto.UpdateParam[d
 
 	return nil
 }
+
+func (u *goodUseCase) DecreaseStock(ctx context.Context, param dto.UpdateParam[dto.GoodStockRequest]) error {
+	// acquire transaction on context
+	trx := ctx.Value(constant.TrxKey).(*gorm.DB)
+
+	updateValue := param.UpdateValue
+	goodId := param.ID
+
+	// determine stock via good
+	row, err := u.goodRepo.SelectGoodById(goodId)
+	if err != nil {
+		// rollback transaction
+		u.txManager.CommitOrRollback(ctx, trx, true)
+
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return cerror.WrapError(http.StatusNotFound, fmt.Errorf("resource not found"))
+		}
+
+		log.Println(err)
+		return cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	if err := u.CheckAvailabilityStock(row.GoodStock.Total, updateValue.Total); err != nil {
+		// rollback transaction
+		u.txManager.CommitOrRollback(ctx, trx, true)
+
+		return err
+	}
+
+	values := map[string]interface{}{
+		"total": row.GoodStock.Total - updateValue.Total,
+	}
+
+	if err := u.goodRepo.WithTrx(trx).UpdateGoodStockByGoodId(goodId, values); err != nil {
+		log.Println(err)
+
+		// rollback transaction
+		u.txManager.CommitOrRollback(ctx, trx, true)
+
+		return cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	return nil
+}
+
+func (u *goodUseCase) CheckAvailabilityStock(stock int, stockOut int) error {
+	availableStock := stock - stockOut
+	if availableStock < 0 {
+		log.Printf("current stock: %d, stockOut: %d", stock, stockOut)
+		return cerror.WrapError(http.StatusBadRequest, fmt.Errorf("goods is insufficient"))
+	}
+
+	return nil
+}
