@@ -10,6 +10,10 @@ import (
 	"github.com/mqnoy/logistics-app/core/handler"
 	"github.com/mqnoy/logistics-app/core/middleware"
 	"gorm.io/gorm"
+
+	_goodHttpDelivery "github.com/mqnoy/logistics-app/core/good/delivery"
+	_goodRepoMySQL "github.com/mqnoy/logistics-app/core/good/repository/mysql"
+	_godUseCase "github.com/mqnoy/logistics-app/core/good/usecase"
 )
 
 var (
@@ -53,18 +57,17 @@ func AppHandler(appctx AppCtx) http.Handler {
 	mux.Use(chiMiddleware.RealIP)
 	mux.Use(middleware.PanicRecoverer)
 
+	// Initialize Repository
+	goodRepoMySQL := _goodRepoMySQL.New(appctx.mysqlDB)
+
+	// Initialize UseCase
+	goodUseCase := _godUseCase.New(goodRepoMySQL)
 
 	// Fallback
 	mux.NotFound(handler.FallbackHandler)
 
-	// TODO: Initialize handler
-	mux.Route("/", func(r chi.Router) {
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			handler.ParseResponse(w, r, "hc", map[string]interface{}{
-				"result": time.Now().Unix(),
-			}, nil)
-		})
-	})
+	// Initialize handler
+	_goodHttpDelivery.New(mux, goodUseCase)
 
 	// Print all routes
 	chi.Walk(mux, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
