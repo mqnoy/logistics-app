@@ -25,3 +25,14 @@ func (t *GoodCreateRequest) Bind(r *http.Request) error {
 type GoodStockResponse struct {
 	Total int `json:"total"`
 }
+
+type GoodUpdateRequest struct {
+	Code        string `json:"code" validate:"min=1,max=10,required"`
+	Name        string `json:"name" validate:"min=1,max=20,required"`
+	Description string `json:"description" validate:"required"`
+	IsActive    bool   `json:"is_active" validate:"boolean"`
+}
+
+func (t *GoodUpdateRequest) Bind(r *http.Request) error {
+	return nil
+}

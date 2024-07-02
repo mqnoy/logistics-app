@@ -103,3 +103,7 @@ func (m mysqlGoodRepository) SelectAndCountGood(param dto.ListParam[dto.FilterCo
 		Count: count,
 	}, nil
 }
+
+func (m mysqlGoodRepository) UpdateGoodById(id string, values interface{}) error {
+	return m.db.Model(model.Good{}).Where("id = ?", id).Updates(values).Error
+}
