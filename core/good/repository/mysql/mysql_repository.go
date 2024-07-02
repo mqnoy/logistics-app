@@ -35,6 +35,7 @@ func (m mysqlGoodRepository) InsertGood(row model.Good) (*model.Good, error) {
 
 func (m mysqlGoodRepository) SelectGoodByCode(code string) (row *model.Good, err error) {
 	if err := m.db.
+		Joins("GoodStock").
 		Where("code=?", code).First(&row).
 		Error; err != nil {
 		return nil, err
