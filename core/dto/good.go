@@ -3,11 +3,12 @@ package dto
 import "net/http"
 
 type GoodResponse struct {
-	ID          string `json:"id"`
-	Code        string `json:"code"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	IsActive    bool   `json:"is_active"`
+	ID                string            `json:"id"`
+	Code              string            `json:"code"`
+	Name              string            `json:"name"`
+	Description       string            `json:"description"`
+	IsActive          bool              `json:"is_active"`
+	GoodStockResponse GoodStockResponse `json:"stock"`
 	Timestamp
 }
 
@@ -19,4 +20,8 @@ type GoodCreateRequest struct {
 
 func (t *GoodCreateRequest) Bind(r *http.Request) error {
 	return nil
+}
+
+type GoodStockResponse struct {
+	Total int `json:"total"`
 }
