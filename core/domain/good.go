@@ -10,6 +10,7 @@ type GoodUseCase interface {
 	DetailGood(param dto.DetailParam) (resp dto.GoodResponse, err error)
 	ListGoods(param dto.ListParam[dto.FilterCommonParams]) (resp dto.ListResponse[dto.GoodResponse], err error)
 	UpdateGood(param dto.UpdateParam[dto.GoodUpdateRequest]) (resp dto.GoodResponse, err error)
+	DeleteGood(param dto.DetailParam) error
 }
 
 type GoodRepository interface {
@@ -18,6 +19,7 @@ type GoodRepository interface {
 	SelectGoodById(id string) (row *model.Good, err error)
 	SelectAndCountGood(param dto.ListParam[dto.FilterCommonParams]) (dto.SelectAndCount[model.Good], error)
 	UpdateGoodById(id string, values interface{}) error
+	DeleteGoodById(id string) error
 
 	InsertGoodStock(row model.GoodStock) (*model.GoodStock, error)
 }

@@ -186,3 +186,18 @@ func (u *goodUseCase) UpdateGood(param dto.UpdateParam[dto.GoodUpdateRequest]) (
 		ID: param.ID,
 	})
 }
+
+func (u *goodUseCase) DeleteGood(param dto.DetailParam) error {
+	row, err := u.DetailGoodById(param.ID)
+	if err != nil {
+		return err
+	}
+
+	// persist delete data
+	if err := u.goodRepo.DeleteGoodById(row.ID); err != nil {
+		log.Println(err)
+		return cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	return nil
+}

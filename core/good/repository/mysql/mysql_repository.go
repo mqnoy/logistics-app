@@ -107,3 +107,11 @@ func (m mysqlGoodRepository) SelectAndCountGood(param dto.ListParam[dto.FilterCo
 func (m mysqlGoodRepository) UpdateGoodById(id string, values interface{}) error {
 	return m.db.Model(model.Good{}).Where("id = ?", id).Updates(values).Error
 }
+
+func (m mysqlGoodRepository) DeleteGoodById(id string) error {
+	if err := m.db.Where("good_id=?", id).Delete(&model.GoodStock{}).Error; err != nil {
+		return err
+	}
+
+	return m.db.Where("id=?", id).Delete(&model.Good{}).Error
+}
