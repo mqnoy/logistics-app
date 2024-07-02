@@ -7,6 +7,7 @@ import (
 
 type UserUseCase interface {
 	RegisterUser(request dto.RegisterRequest) (resp dto.UserResponse, err error)
+	LoginUser(payload dto.LoginRequest) (resp dto.LoginResponse, err error)
 }
 
 type UserRepository interface {

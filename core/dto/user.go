@@ -18,3 +18,18 @@ type RegisterRequest struct {
 func (rr *RegisterRequest) Bind(r *http.Request) error {
 	return nil
 }
+
+type LoginRequest struct {
+	Email    string `json:"email" validate:"required,email,normalize"`
+	Password string `json:"password" validate:"required"`
+}
+
+func (l *LoginRequest) Bind(r *http.Request) error {
+	return nil
+}
+
+type LoginResponse struct {
+	AccessToken  string       `json:"accessToken"`
+	RefreshToken string       `json:"refreshToken"`
+	UserResponse UserResponse `json:"user"`
+}

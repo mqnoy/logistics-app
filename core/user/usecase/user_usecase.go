@@ -80,3 +80,63 @@ func (u *userUseCase) GetUserByEmail(email string) (*model.User, error) {
 
 	return row, nil
 }
+
+func (u *userUseCase) LoginUser(payload dto.LoginRequest) (resp dto.LoginResponse, err error) {
+	userRow, err := u.GetUserByEmail(payload.Email)
+	if err != nil {
+		return resp, err
+	}
+
+	// Compare password
+	if err := u.ComparePassword(userRow.Password, payload.Password); err != nil {
+		return resp, err
+	}
+
+	// Generate accessToken
+	accessTknExpiry := jwt.NewNumericDate(time.Now().Add(time.Duration(config.AppConfig.JWT.AccessTokenExpiry) * time.Second))
+	accessTkn, err := u.GenerateToken(accessTknExpiry, userRow.ID)
+	if err != nil {
+		return resp, err
+	}
+
+	// Generate refreshToken
+	refreshTknExpiry := jwt.NewNumericDate(time.Now().Add(time.Duration(config.AppConfig.JWT.RefreshTokenExpiry) * time.Second))
+	refreshTkn, err := u.GenerateToken(refreshTknExpiry, userRow.ID)
+	if err != nil {
+		return resp, err
+	}
+
+	return dto.LoginResponse{
+		AccessToken:  accessTkn,
+		RefreshToken: refreshTkn,
+		UserResponse: u.ComposeUser(userRow),
+	}, nil
+}
+
+func (u *userUseCase) GenerateToken(expiredIn *jwt.NumericDate, subjectId string) (string, error) {
+	key := []byte(config.AppConfig.JWT.Key)
+	mapClaims := token.GenerateMapClaims(token.CustomClaimOptions{
+		ExpiredTime: expiredIn,
+		SubjectId:   subjectId,
+	})
+
+	token, err := token.Generate(mapClaims, key)
+	if err != nil {
+		return "", cerror.WrapError(http.StatusInternalServerError, err)
+	}
+
+	return token, nil
+}
+
+func (u *userUseCase) ComparePassword(password string, inputPassword string) error {
+	if err := bcrypt.CompareHashAndPassword([]byte(password), []byte(inputPassword)); err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("password doesn't match"))
+		}
+
+		log.Println(err)
+		return cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	return nil
+}
