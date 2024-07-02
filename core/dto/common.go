@@ -14,7 +14,7 @@ type Pagination struct {
 }
 
 type ListResponse[T any] struct {
-	Rows     []*T       `json:"rows"`
+	Rows     []T        `json:"rows"`
 	MetaData Pagination `json:"metaData"`
 }
 

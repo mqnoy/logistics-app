@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 
 	"github.com/mqnoy/logistics-app/core/domain"
@@ -111,4 +112,38 @@ func (u *goodUseCase) DetailGood(param dto.DetailParam) (resp dto.GoodResponse, 
 	}
 
 	return u.ComposeGood(row), nil
+}
+
+func (u *goodUseCase) ListGoods(param dto.ListParam[dto.FilterCommonParams]) (resp dto.ListResponse[dto.GoodResponse], err error) {
+	pagination := param.Pagination
+	param.Pagination.Offset = (pagination.Page - 1) * pagination.Limit
+
+	rows, err := u.goodRepo.SelectAndCountGood(param)
+	if err != nil {
+		log.Println(err)
+		return resp, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	// Create pagination metadata
+	totalItems := rows.Count
+	totalPages := int(math.Ceil(float64(totalItems) / float64(pagination.Limit)))
+
+	return dto.ListResponse[dto.GoodResponse]{
+		Rows: u.ComposeListGood(rows.Rows),
+		MetaData: dto.Pagination{
+			Page:       pagination.Page,
+			Limit:      pagination.Limit,
+			TotalPages: totalPages,
+			TotalItems: totalItems,
+		},
+	}, nil
+}
+
+func (u *goodUseCase) ComposeListGood(m []*model.Good) []dto.GoodResponse {
+	results := make([]dto.GoodResponse, len(m))
+	for idx, el := range m {
+		results[idx] = u.ComposeGood(el)
+	}
+
+	return results
 }
