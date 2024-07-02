@@ -110,11 +110,9 @@ func (u *orderUseCase) ComposeOrder(m *model.Order) (resp dto.OrderResponse, err
 			ID:   m.Type,
 			Name: m.GetOrderTypeName(),
 		},
-		Good: dto.GoodOrderResponse{
-			Code: goodResponse.Code,
-		},
-		Total:     m.Total,
-		Timestamp: dto.ComposeTimestamp(m.TimestampColumn),
+		GoodSnapshotResponse: goodResponse,
+		Total:                m.Total,
+		Timestamp:            dto.ComposeTimestamp(m.TimestampColumn),
 	}, nil
 }
 

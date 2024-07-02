@@ -7,11 +7,11 @@ type GoodOrderResponse struct {
 }
 
 type OrderResponse struct {
-	ID        string            `json:"id"`
-	RequestAt int64             `json:"request_at"`
-	Type      OrderTypeResponse `json:"type"`
-	Good      GoodOrderResponse `json:"good"`
-	Total     int               `json:"total"`
+	ID                   string            `json:"id"`
+	RequestAt            int64             `json:"request_at"`
+	Type                 OrderTypeResponse `json:"type"`
+	GoodSnapshotResponse GoodResponse      `json:"good_snapshot"`
+	Total                int               `json:"total"`
 	Timestamp
 }
 
