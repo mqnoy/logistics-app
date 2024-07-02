@@ -9,6 +9,7 @@ import (
 	"github.com/mqnoy/logistics-app/core/config"
 	"github.com/mqnoy/logistics-app/core/handler"
 	"github.com/mqnoy/logistics-app/core/middleware"
+	"github.com/mqnoy/logistics-app/core/model"
 	"gorm.io/gorm"
 
 	_goodHttpDelivery "github.com/mqnoy/logistics-app/core/good/delivery"
@@ -33,6 +34,17 @@ func main() {
 		mysqlDB: config.InitMySQLDatabase(appCfg),
 	}
 
+	// Auto migration
+	if appCfg.MigrateConfig.AutoMigrate {
+		err := appCtx.mysqlDB.AutoMigrate(
+			&model.Good{},
+			&model.GoodStock{},
+		)
+
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}
 
 	// The HTTP Server
 	addr := appCfg.Server.Address()
