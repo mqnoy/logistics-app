@@ -264,6 +264,13 @@ func (u *goodUseCase) IncreaseStock(ctx context.Context, param dto.UpdateParam[d
 		return cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
 	}
 
+	if !row.IsActive {
+		// rollback transaction
+		u.txManager.CommitOrRollback(ctx, trx, true)
+
+		return cerror.WrapError(http.StatusBadRequest, fmt.Errorf("resource not active"))
+	}
+
 	values := map[string]interface{}{
 		"total": row.GoodStock.Total + updateValue.Total,
 	}
@@ -299,6 +306,13 @@ func (u *goodUseCase) DecreaseStock(ctx context.Context, param dto.UpdateParam[d
 
 		log.Println(err)
 		return cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	if !row.IsActive {
+		// rollback transaction
+		u.txManager.CommitOrRollback(ctx, trx, true)
+
+		return cerror.WrapError(http.StatusBadRequest, fmt.Errorf("resource not active"))
 	}
 
 	if err := u.CheckAvailabilityStock(row.GoodStock.Total, updateValue.Total); err != nil {
