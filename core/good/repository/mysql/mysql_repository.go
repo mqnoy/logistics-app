@@ -1,6 +1,8 @@
 package mysql
 
 import (
+	"log"
+
 	"github.com/mqnoy/logistics-app/core/domain"
 	"github.com/mqnoy/logistics-app/core/dto"
 	"github.com/mqnoy/logistics-app/core/model"
@@ -125,4 +127,8 @@ func (m mysqlGoodRepository) DeleteGoodById(id string) error {
 	}
 
 	return m.db.Where("id=?", id).Delete(&model.Good{}).Error
+}
+
+func (m mysqlGoodRepository) UpdateGoodStockByGoodId(goodId string, values interface{}) error {
+	return m.db.Model(model.GoodStock{}).Where("good_id = ?", goodId).Updates(values).Error
 }

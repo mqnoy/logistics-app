@@ -49,3 +49,7 @@ type GoodSnapShot struct {
 type GoodStockSnapshot struct {
 	Total int `json:"total"`
 }
+
+type GoodStockRequest struct {
+	Total int
+}
