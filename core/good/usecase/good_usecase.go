@@ -23,7 +23,7 @@ func New(goodRepo domain.GoodRepository) domain.GoodUseCase {
 	}
 }
 
-func (u *goodUseCase) CreateTask(param dto.CreateParam[dto.GoodCreateRequest]) (resp dto.GoodResponse, err error) {
+func (u *goodUseCase) CreateGood(param dto.CreateParam[dto.GoodCreateRequest]) (resp dto.GoodResponse, err error) {
 
 	createValue := param.CreateValue
 
