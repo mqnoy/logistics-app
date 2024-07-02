@@ -1,0 +1,33 @@
+services:
+  logistics_db:
+    image: mariadb:10.2
+    restart: no
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345678
+      - TZ=UTC 
+    ports:
+      - 33061:3306
+    volumes:
+      - ./.docker-files/mariadb/etc/my.cnf:/etc/mysql/my.cnf
+      - ./.docker-files/mariadb/etc/conf.d:/etc/mysql/conf.d
+      - ./.docker-files/mariadb/logs:/var/log/mysql
+
+  logistics_core:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - TAG=${TAG:-latest}
+    environment:
+      - LOGISTICS_APP_LOG_LEVEL=debug
+      - LOGISTICS_APP_DATABASE_MYSQL_HOST=todolist_db
+      - LOGISTICS_APP_DATABASE_MYSQL_PORT=3306
+      - LOGISTICS_APP_DATABASE_MYSQL_USERNAME=root
+      - LOGISTICS_APP_DATABASE_MYSQL_PASSWORD=12345678
+      - LOGISTICS_APP_DATABASE_MYSQL_DBNAME=logistics_app_db
+      - LOGISTICS_APP_JWT_KEY=your-jwt-key
+    ports:
+      - 8080:8080
+    depends_on:
+      - logistics_db
