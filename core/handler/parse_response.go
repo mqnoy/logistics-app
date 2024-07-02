@@ -12,6 +12,7 @@ type ErrorResponse struct {
 	Success bool        `json:"success"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
+	Errors  interface{} `json:"errors"`
 }
 
 type DefaultResponse struct {
@@ -27,6 +28,17 @@ func ParseToErrorMsg(w http.ResponseWriter, r *http.Request, httpStatusCode int,
 		Success: false,
 		Message: err.Error(),
 		Data:    nil,
+	})
+}
+
+func ParseToErrorValidation(w http.ResponseWriter, r *http.Request, httpStatusCode int, message string, errors interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(httpStatusCode)
+	render.JSON(w, r, ErrorResponse{
+		Success: false,
+		Message: message,
+		Data:    nil,
+		Errors:  errors,
 	})
 }
 
