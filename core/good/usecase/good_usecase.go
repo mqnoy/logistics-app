@@ -147,3 +147,42 @@ func (u *goodUseCase) ComposeListGood(m []*model.Good) []dto.GoodResponse {
 
 	return results
 }
+
+func (u *goodUseCase) UpdateGood(param dto.UpdateParam[dto.GoodUpdateRequest]) (resp dto.GoodResponse, err error) {
+	row, err := u.DetailGoodById(param.ID)
+	if err != nil {
+		return resp, err
+	}
+
+	updateValue := param.UpdateValue
+
+	// validate good is exist when code is not same with existing row
+	if row.Code != updateValue.Code {
+		goodExist, err := u.ValidateExistGood(updateValue.Code)
+		if err != nil {
+			return resp, err
+		}
+
+		if goodExist != nil {
+			return resp, cerror.WrapError(http.StatusBadRequest, fmt.Errorf("duplicate resource"))
+		}
+
+	}
+
+	// persist update data
+	values := map[string]interface{}{
+		"code":        updateValue.Code,
+		"name":        updateValue.Name,
+		"description": updateValue.Description,
+		"is_active":   updateValue.IsActive,
+	}
+	if err := u.goodRepo.UpdateGoodById(row.ID, values); err != nil {
+		log.Println(err)
+		return resp, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	// persist select updated data
+	return u.DetailGood(dto.DetailParam{
+		ID: param.ID,
+	})
+}

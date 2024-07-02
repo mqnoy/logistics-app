@@ -29,6 +29,7 @@ func New(mux *chi.Mux, goodUseCase domain.GoodUseCase) {
 		r.Post("/", handler.PostCreateGood)
 		r.Get("/{id}", handler.GetDetailGood)
 		r.Get("/", handler.GetListGoods)
+		r.Put("/{id}", handler.PutUpdateGood)
 	})
 
 }
@@ -95,4 +96,28 @@ func (h goodHandler) GetListGoods(w http.ResponseWriter, r *http.Request) {
 	result, err := h.goodUseCase.ListGoods(param)
 
 	handler.ParseResponse(w, r, "GetListGoods", result, err)
+}
+
+func (h goodHandler) PutUpdateGood(w http.ResponseWriter, r *http.Request) {
+	var request dto.GoodUpdateRequest
+	if err := render.Bind(r, &request); err != nil {
+		handler.ParseResponse(w, r, "", err, cerror.WrapError(http.StatusBadRequest, err))
+		return
+	}
+
+	// Validate payload
+	if err := cvalidator.ValidateStruct(&request); err != nil {
+		handler.ParseToErrorValidation(w, r, http.StatusBadRequest, cvalidator.ErrorValidator, err)
+		return
+	}
+
+	param := dto.UpdateParam[dto.GoodUpdateRequest]{
+		UpdateValue: request,
+		ID:          chi.URLParam(r, "id"),
+	}
+
+	// Call usecase
+	result, err := h.goodUseCase.UpdateGood(param)
+
+	handler.ParseResponse(w, r, "PutUpdateGood", result, err)
 }
