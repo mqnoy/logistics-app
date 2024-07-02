@@ -36,3 +36,16 @@ type GoodUpdateRequest struct {
 func (t *GoodUpdateRequest) Bind(r *http.Request) error {
 	return nil
 }
+
+type GoodSnapShot struct {
+	ID                string            `json:"id"`
+	Code              string            `json:"code"`
+	Name              string            `json:"name"`
+	Description       string            `json:"description"`
+	IsActive          bool              `json:"is_active"`
+	GoodStockSnapshot GoodStockSnapshot `json:"stock"`
+}
+
+type GoodStockSnapshot struct {
+	Total int `json:"total"`
+}

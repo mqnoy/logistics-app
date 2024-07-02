@@ -11,6 +11,7 @@ type GoodUseCase interface {
 	ListGoods(param dto.ListParam[dto.FilterCommonParams]) (resp dto.ListResponse[dto.GoodResponse], err error)
 	UpdateGood(param dto.UpdateParam[dto.GoodUpdateRequest]) (resp dto.GoodResponse, err error)
 	DeleteGood(param dto.DetailParam) error
+	SnapshotGood(code string) (result dto.EntitySnapshot, row *model.Good, err error)
 }
 
 type GoodRepository interface {

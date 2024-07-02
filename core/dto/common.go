@@ -3,6 +3,7 @@ package dto
 import (
 	"github.com/mqnoy/logistics-app/core/model"
 	"github.com/mqnoy/logistics-app/core/util"
+	"gorm.io/datatypes"
 )
 
 type Pagination struct {
@@ -62,4 +63,8 @@ func ComposeTimestamp(m model.TimestampColumn) Timestamp {
 		CreatedAt: util.DateToEpoch(m.CreatedAt),
 		UpdatedAt: util.DateToEpoch(m.UpdatedAt),
 	}
+}
+
+type EntitySnapshot struct {
+	Snapshot datatypes.JSON
 }

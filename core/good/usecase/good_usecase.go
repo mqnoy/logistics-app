@@ -201,3 +201,37 @@ func (u *goodUseCase) DeleteGood(param dto.DetailParam) error {
 
 	return nil
 }
+
+func (u *goodUseCase) SnapshotGood(code string) (result dto.EntitySnapshot, row *model.Good, err error) {
+	row, err = u.goodRepo.SelectGoodByCode(code)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return result, nil, cerror.WrapError(http.StatusNotFound, fmt.Errorf("resource not found"))
+		}
+
+		log.Println(err)
+		return result, nil, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	// perform convert to json
+	snapshot := dto.GoodSnapShot{
+		ID:          row.ID,
+		Code:        row.Code,
+		Name:        row.Name,
+		Description: row.Description,
+		IsActive:    row.IsActive,
+		GoodStockSnapshot: dto.GoodStockSnapshot{
+			Total: row.GoodStock.Total,
+		},
+	}
+
+	snapshotJSON, err := json.Marshal(snapshot)
+	if err != nil {
+		log.Println(err)
+		return result, nil, err
+	}
+
+	return dto.EntitySnapshot{
+		Snapshot: datatypes.JSON(snapshotJSON),
+	}, row, nil
+}
