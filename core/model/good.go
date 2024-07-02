@@ -7,10 +7,11 @@ import (
 
 type Good struct {
 	UUIDColumn
-	Code        string `gorm:"column:code;type:varchar(10);not null;unique"`
-	Name        string `gorm:"column:name;type:varchar(20);not null"`
-	Description string `gorm:"column:description"`
-	IsActive    bool   `gorm:"column:is_active;default:1"`
+	Code        string    `gorm:"column:code;type:varchar(10);not null;unique"`
+	Name        string    `gorm:"column:name;type:varchar(20);not null"`
+	Description string    `gorm:"column:description"`
+	IsActive    bool      `gorm:"column:is_active;default:1"`
+	GoodStock   GoodStock `gorm:"foreignKey:GoodID"`
 	TimestampColumn
 }
 

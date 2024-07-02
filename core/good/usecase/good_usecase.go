@@ -39,7 +39,6 @@ func (u *goodUseCase) CreateGood(param dto.CreateParam[dto.GoodCreateRequest]) (
 
 	// Persist insert goods
 	good := model.Good{
-		UUIDColumn:  model.UUIDColumn{},
 		Code:        createValue.Code,
 		Name:        createValue.Name,
 		Description: createValue.Description,
