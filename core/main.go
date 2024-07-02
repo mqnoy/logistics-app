@@ -15,6 +15,7 @@ import (
 	_goodHttpDelivery "github.com/mqnoy/logistics-app/core/good/delivery"
 	_goodRepoMySQL "github.com/mqnoy/logistics-app/core/good/repository/mysql"
 	_godUseCase "github.com/mqnoy/logistics-app/core/good/usecase"
+	transaction "github.com/mqnoy/logistics-app/core/transaction_manager/repository"
 )
 
 var (
@@ -68,6 +69,9 @@ func AppHandler(appctx AppCtx) http.Handler {
 	// Setup middleware
 	mux.Use(chiMiddleware.RealIP)
 	mux.Use(middleware.PanicRecoverer)
+
+	// Initialize trx manager
+	txManager := transaction.New(appctx.mysqlDB)
 
 	// Initialize Repository
 	goodRepoMySQL := _goodRepoMySQL.New(appctx.mysqlDB)

@@ -14,6 +14,8 @@ type GoodUseCase interface {
 }
 
 type GoodRepository interface {
+	WithTrx(trxHandle *gorm.DB) GoodRepository
+
 	InsertGood(row model.Good) (*model.Good, error)
 	SelectGoodByCode(code string) (row *model.Good, err error)
 	SelectGoodById(id string) (row *model.Good, err error)
