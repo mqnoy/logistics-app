@@ -17,7 +17,7 @@ type orderHandler struct {
 	orderUseCase domain.OrderUseCase
 }
 
-func New(mux *chi.Mux, orderUseCase domain.OrderUseCase) {
+func New(mux *chi.Mux, middlewareAuthorization domain.MiddlewareAuthorization, orderUseCase domain.OrderUseCase) {
 
 	handler := orderHandler{
 		mux:          mux,
@@ -25,6 +25,7 @@ func New(mux *chi.Mux, orderUseCase domain.OrderUseCase) {
 	}
 
 	mux.Route("/orders", func(r chi.Router) {
+		r.Use(middlewareAuthorization.AuthorizationJWT)
 		r.Post("/goods/in", handler.PostOrderIn)
 		r.Post("/goods/out", handler.PostOrderOut)
 	})
@@ -46,6 +47,7 @@ func (h orderHandler) PostOrderIn(w http.ResponseWriter, r *http.Request) {
 
 	param := dto.CreateParam[dto.OrderInRequest]{
 		CreateValue: request,
+		Session:     dto.GetAuthorizedUser(r.Context()),
 	}
 
 	// call usecase
@@ -69,6 +71,7 @@ func (h orderHandler) PostOrderOut(w http.ResponseWriter, r *http.Request) {
 
 	param := dto.CreateParam[dto.OrderInRequest]{
 		CreateValue: request,
+		Session:     dto.GetAuthorizedUser(r.Context()),
 	}
 
 	// call usecase

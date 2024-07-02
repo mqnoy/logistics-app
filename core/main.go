@@ -101,7 +101,7 @@ func AppHandler(appctx AppCtx) http.Handler {
 
 	// Initialize handler
 	_goodHttpDelivery.New(mux, authMiddleware, goodUseCase)
-	_orderHttpDelivery.New(mux, orderUseCase)
+	_orderHttpDelivery.New(mux, authMiddleware, orderUseCase)
 	_userHttpDelivery.New(mux, userUseCase)
 
 	// Print all routes
