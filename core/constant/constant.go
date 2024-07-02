@@ -3,5 +3,6 @@ package constant
 type key int
 
 const (
-	TrxKey key = iota
+	TrxKey               key = iota
+	AuthorizedUserCtxKey key = iota
 )
