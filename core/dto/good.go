@@ -44,6 +44,7 @@ type GoodSnapShot struct {
 	Description       string            `json:"description"`
 	IsActive          bool              `json:"is_active"`
 	GoodStockSnapshot GoodStockSnapshot `json:"stock"`
+	Timestamp
 }
 
 type GoodStockSnapshot struct {

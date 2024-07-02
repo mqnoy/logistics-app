@@ -230,6 +230,7 @@ func (u *goodUseCase) SnapshotGood(code string) (result dto.EntitySnapshot, row 
 		GoodStockSnapshot: dto.GoodStockSnapshot{
 			Total: row.GoodStock.Total,
 		},
+		Timestamp: dto.ComposeTimestamp(row.TimestampColumn),
 	}
 
 	snapshotJSON, err := json.Marshal(snapshot)
