@@ -46,3 +46,14 @@ func NumberToEpoch(epochInt int64) (time.Time, error) {
 func TimeToStringDateOnly(t time.Time) string {
 	return t.Format("2006-01-02")
 }
+
+func GetCurrentTime() time.Time {
+	loc, err := time.LoadLocation("UTC")
+	if err != nil {
+		panic(err)
+	}
+
+	t := time.Now()
+	t1 := t.In(loc)
+	return t1
+}
