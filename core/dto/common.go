@@ -25,7 +25,8 @@ type SelectAndCount[M any] struct {
 }
 
 type DetailParam struct {
-	ID string
+	ID      string
+	Session AuthorizedUser
 }
 
 // list param
@@ -33,16 +34,19 @@ type ListParam[T any] struct {
 	Filters    T
 	Orders     string
 	Pagination Pagination
+	Session    AuthorizedUser
 }
 
 type CreateParam[T any] struct {
 	CreateValue T
+	Session     AuthorizedUser
 }
 
 // update param
 type UpdateParam[T any] struct {
 	ID          string
 	UpdateValue T
+	Session     AuthorizedUser
 }
 
 type Timestamp struct {
