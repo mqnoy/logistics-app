@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
@@ -27,6 +28,7 @@ func New(mux *chi.Mux, goodUseCase domain.GoodUseCase) {
 	mux.Route("/goods", func(r chi.Router) {
 		r.Post("/", handler.PostCreateGood)
 		r.Get("/{id}", handler.GetDetailGood)
+		r.Get("/", handler.GetListGoods)
 	})
 
 }
@@ -63,4 +65,34 @@ func (h goodHandler) GetDetailGood(w http.ResponseWriter, r *http.Request) {
 	result, err := h.goodUseCase.DetailGood(param)
 
 	handler.ParseResponse(w, r, "GetDetailGood", result, err)
+}
+
+func (h goodHandler) GetListGoods(w http.ResponseWriter, r *http.Request) {
+	page, _ := strconv.Atoi(handler.DefaultQuery(r, "page", "1"))
+	limit, _ := strconv.Atoi(handler.DefaultQuery(r, "limit", "10"))
+	offset, _ := strconv.Atoi(handler.DefaultQuery(r, "offset", "0"))
+	keyword, _ := handler.GetQuery(r, "keyword")
+
+	qIsActive, _ := handler.GetQuery(r, "is_active")
+	IsActive := handler.ParseQueryToBool(qIsActive)
+
+	orders := handler.DefaultQuery(r, "orders", "id desc")
+
+	param := dto.ListParam[dto.FilterCommonParams]{
+		Filters: dto.FilterCommonParams{
+			Keyword:  keyword,
+			IsActive: IsActive,
+		},
+		Orders: orders,
+		Pagination: dto.Pagination{
+			Page:   page,
+			Limit:  limit,
+			Offset: offset,
+		},
+	}
+
+	// Call usecase
+	result, err := h.goodUseCase.ListGoods(param)
+
+	handler.ParseResponse(w, r, "GetListGoods", result, err)
 }
