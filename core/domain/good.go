@@ -6,7 +6,7 @@ import (
 )
 
 type GoodUseCase interface {
-	CreateTask(param dto.CreateParam[dto.GoodCreateRequest]) (resp dto.GoodResponse, err error)
+	CreateGood(param dto.CreateParam[dto.GoodCreateRequest]) (resp dto.GoodResponse, err error)
 }
 
 type GoodRepository interface {

@@ -48,7 +48,7 @@ func (h goodHandler) PostCreateGood(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// call usecase
-	result, err := h.goodUseCase.CreateTask(param)
+	result, err := h.goodUseCase.CreateGood(param)
 
 	handler.ParseResponse(w, r, "PostCreateGood", result, err)
 }
