@@ -35,3 +35,15 @@ func (m mysqlGoodRepository) InsertGoodStock(row model.GoodStock) (*model.GoodSt
 	err := m.db.Create(&row).Error
 	return &row, err
 }
+
+func (m *mysqlGoodRepository) SelectGoodById(id string) (*model.Good, error) {
+	var row model.Good
+	if err := m.db.
+		Joins("GoodStock").
+		First(&row, "Good.id = ?", id).
+		Error; err != nil {
+		return nil, err
+	}
+
+	return &row, nil
+}

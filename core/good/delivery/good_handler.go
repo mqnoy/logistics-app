@@ -26,6 +26,7 @@ func New(mux *chi.Mux, goodUseCase domain.GoodUseCase) {
 
 	mux.Route("/goods", func(r chi.Router) {
 		r.Post("/", handler.PostCreateGood)
+		r.Get("/{id}", handler.GetDetailGood)
 	})
 
 }
@@ -51,4 +52,15 @@ func (h goodHandler) PostCreateGood(w http.ResponseWriter, r *http.Request) {
 	result, err := h.goodUseCase.CreateGood(param)
 
 	handler.ParseResponse(w, r, "PostCreateGood", result, err)
+}
+
+func (h goodHandler) GetDetailGood(w http.ResponseWriter, r *http.Request) {
+	param := dto.DetailParam{
+		ID: chi.URLParam(r, "id"),
+	}
+
+	// Call usecase
+	result, err := h.goodUseCase.DetailGood(param)
+
+	handler.ParseResponse(w, r, "GetDetailGood", result, err)
 }
