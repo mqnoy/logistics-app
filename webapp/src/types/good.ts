@@ -23,7 +23,7 @@ export interface GoodCreateRequest {
 
 export type GoodCreateResponse = BaseResponse<Goods>
 
-export type ModalActionGoods = 'create' | 'update'
+export type ModalActionGoods = 'create' | 'update' | 'detail'
 
 export interface GoodUpdateRequest extends GoodCreateRequest {
     id: string
