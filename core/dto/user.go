@@ -4,7 +4,7 @@ import "net/http"
 
 type UserResponse struct {
 	ID       string `json:"id"`
-	FullName string `json:"fullName"`
+	FullName string `json:"full_name"`
 	Email    string `json:"email"`
 	Timestamp
 }
@@ -29,7 +29,7 @@ func (l *LoginRequest) Bind(r *http.Request) error {
 }
 
 type LoginResponse struct {
-	AccessToken  string       `json:"accessToken"`
-	RefreshToken string       `json:"refreshToken"`
+	AccessToken  string       `json:"access_token"`
+	RefreshToken string       `json:"refresh_token"`
 	UserResponse UserResponse `json:"user"`
 }
