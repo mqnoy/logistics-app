@@ -6,7 +6,7 @@ import { useLazyGetDetailGoodQuery, useLazyGetListGoodsQuery } from "../api";
 import { rtkUtils, toastUtils } from "../utils";
 import { FaPlus } from "react-icons/fa6";
 import { Modal } from "./Modal";
-import { GoodsForm } from ".";
+import { GoodDetail, GoodsForm } from ".";
 
 type GoodsListProps = unknown
 
@@ -101,6 +101,12 @@ export const GoodsList: FC<GoodsListProps> = () => {
         }
     }, [errorGetDetail, isloadingGetDetail])
 
+    const handleActionDetail = (props: Goods) => {
+        getDetail(props.id)
+        setModalTitle("Detail Goods")
+        setAction("detail")
+        showModalCU()
+    }
 
     return (
         <div className="section">
@@ -109,29 +115,32 @@ export const GoodsList: FC<GoodsListProps> = () => {
                 isActive={isModalActiveCU}
                 onClose={closeModal}
                 content={
-                    <GoodsForm
-                        action={action}
-                        dataDetail={dataGetDetail?.data}
-                        actionIsDone={(isDone, error) => {
-                            if (isDone && !error) {
-                                toastUtils.fireToastSuccess("successfully", {
-                                    onClose() {
-                                        setIsModalActiveCU(false)
-                                        trigger(Object.assign({
-                                            limit: 10,
-                                            offset: 0,
-                                            page: page,
-                                            orders: 'id desc',
-                                        }));
-                                    },
-                                })
-                            }
+                    action === "create" || action === "update" ?
+                        <GoodsForm
+                            action={action}
+                            dataDetail={dataGetDetail?.data}
+                            actionIsDone={(isDone, error) => {
+                                if (isDone && !error) {
+                                    toastUtils.fireToastSuccess("successfully", {
+                                        onClose() {
+                                            setIsModalActiveCU(false)
+                                            trigger(Object.assign({
+                                                limit: 10,
+                                                offset: 0,
+                                                page: page,
+                                                orders: 'id desc',
+                                            }));
+                                        },
+                                    })
+                                }
 
-                            if (error) {
-                                toastUtils.fireToastError(error)
-                            }
-                        }}
-                    />
+                                if (error) {
+                                    toastUtils.fireToastError(error)
+                                }
+                            }}
+                        /> : <GoodDetail
+                            data={dataGetDetail?.data}
+                        />
                 }
             />
             <div className="columns">
@@ -197,7 +206,7 @@ export const GoodsList: FC<GoodsListProps> = () => {
                                         <button
                                             className="button is-primary is-outlined"
                                             onClick={() => {
-
+                                                handleActionDetail(item)
                                             }} >
                                             view
                                         </button>
