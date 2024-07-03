@@ -14,3 +14,13 @@ export interface Stock {
 }
 
 export type GoodsListResponse = BaseResponse<ListResponse<Goods>>
+
+export interface GoodCreateRequest {
+    code: string
+    name: string
+    description: string
+}
+
+export type GoodCreateResponse = BaseResponse<Goods>
+
+export type ModalActionGoods = 'create' | 'update'

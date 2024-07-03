@@ -1,9 +1,12 @@
 
 import { FC, ReactNode, useEffect, useState } from "react";
-import { Goods } from "../types";
+import { Goods, ModalActionGoods } from "../types";
 import { TableCustom } from "./TableCustom";
 import { useLazyGetListGoodsQuery } from "../api";
 import { rtkUtils, toastUtils } from "../utils";
+import { FaPlus } from "react-icons/fa6";
+import { Modal } from "./Modal";
+import { GoodsForm } from ".";
 
 type GoodsListProps = unknown
 
@@ -68,11 +71,63 @@ export const GoodsList: FC<GoodsListProps> = () => {
         return <span className="button is-danger is-small has-text-white">Inactive</span>
     }
 
+    const [isModalActiveCU, setIsModalActiveCU] = useState(false);
+    const [modalTitle, setModalTitle] = useState('')
+    const [action, setAction] = useState<ModalActionGoods>();
+
+    const showModalCU = () => {
+        setIsModalActiveCU(true);
+    };
+
+    const closeModal = () => {
+        setIsModalActiveCU(false);
+    };
+
     return (
         <div className="section">
+            <Modal
+                title={modalTitle}
+                isActive={isModalActiveCU}
+                onClose={closeModal}
+                content={
+                    <GoodsForm
+                        action={action}
+                        actionIsDone={(isDone, error) => {
+                            if (isDone && !error) {
+                                toastUtils.fireToastSuccess("successfully", {
+                                    onClose() {
+                                        setIsModalActiveCU(false)
+                                        trigger(Object.assign({
+                                            limit: 10,
+                                            offset: 0,
+                                            page: page,
+                                            orders: 'id desc',
+                                        }));
+                                    },
+                                })
+                            }
+
+                            if (error) {
+                                toastUtils.fireToastError(error)
+                            }
+                        }}
+                    />
+                }
+            />
             <div className="columns">
                 <div className="column">
-                    <h5 className="title">Goods</h5>
+                    <span className="icon-text has-text-info">
+                        <h5 className="title">Goods</h5>
+                        <button className="button is-primary is-small"
+                            aria-label="add new goods"
+                            onClick={() => {
+                                setModalTitle("Add new Goods")
+                                setAction("create")
+                                showModalCU()
+                            }}
+                        > <FaPlus className="has-text-white" /></button>
+                    </span>
+
                 </div>
                 <div className="column is-flex is-justify-content-flex-end">
                     <div className="field has-addons">
