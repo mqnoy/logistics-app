@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/mqnoy/logistics-app/core/config"
 	"github.com/mqnoy/logistics-app/core/handler"
 	"github.com/mqnoy/logistics-app/core/middleware"
@@ -79,6 +80,19 @@ func AppHandler(appctx AppCtx) http.Handler {
 	// Setup middleware
 	mux.Use(chiMiddleware.RealIP)
 	mux.Use(middleware.PanicRecoverer)
+
+	if config.AppConfig.App.EnableCors {
+		mux.Use(cors.Handler(cors.Options{
+			AllowedOrigins:   config.AppConfig.App.AllowOrigins,
+			AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+			AllowedHeaders:   []string{"*"},
+			AllowCredentials: false,
+			MaxAge:           300,
+		}))
+		log.Printf("cors enabled allowed origins: %v\n", config.AppConfig.App.AllowOrigins)
+	} else {
+		mux.Use(cors.AllowAll().Handler)
+	}
 
 	// Initialize trx manager
 	txManager := transaction.New(appctx.mysqlDB)
