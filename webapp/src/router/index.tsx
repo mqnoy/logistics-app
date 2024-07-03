@@ -3,6 +3,7 @@ import LoginPage from '../pages/Login'
 import { DashboardPage } from '../pages'
 import { cookieUtils } from '../utils'
 import RegisterPage from '../pages/Register'
+import GoodsPage from '../pages/GoodsPage'
 
 const privateLoader = () => {
     const authCred = cookieUtils.getCredentials()
@@ -40,6 +41,11 @@ const router = createBrowserRouter([
             }
             return null
         },
+    },
+    {
+        path: '/goods',
+        element: <GoodsPage />,
+        loader: privateLoader,
     },
 ])
 
