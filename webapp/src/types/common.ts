@@ -4,8 +4,15 @@ export type BaseResponse<D> = {
     data: D
 }
 
+export interface MetaData {
+    page: number
+    limit: number
+    total_pages: number
+    total_items: number
+}
+
 export type ListResponse<R> = {
-    metadata: unknown
+    metadata: MetaData
     rows: R[]
 }
 
@@ -22,4 +29,11 @@ export interface ErrorValidator {
 
 export interface ErrorApiResponse extends BaseResponse<null> {
     errors?: ErrorValidator[]
+}
+
+export interface ListRequest {
+    page: number
+    limit: number
+    offset: number
+    orders: string
 }
