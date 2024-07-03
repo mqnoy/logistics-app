@@ -16,7 +16,7 @@ type Pagination struct {
 
 type ListResponse[T any] struct {
 	Rows     []T        `json:"rows"`
-	MetaData Pagination `json:"metaData"`
+	MetaData Pagination `json:"metadata"`
 }
 
 type SelectAndCount[M any] struct {
