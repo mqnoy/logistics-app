@@ -48,8 +48,8 @@ type Database struct {
 
 type App struct {
 	Environment  string   `envconfig:"ENVIRONMENT"`
-	EnableCors   bool     `envconfig:"ENABLE_CORS"`
-	AllowOrigins []string `envconfig:"ALLOWORIGINS"`
+	EnableCors   bool     `envconfig:"ENABLE_CORS" default:"false"`
+	AllowOrigins []string `envconfig:"ALLOWORIGINS" default:"*"`
 }
 
 type MigrateConfig struct {
