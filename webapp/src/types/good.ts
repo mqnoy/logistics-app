@@ -24,3 +24,10 @@ export interface GoodCreateRequest {
 export type GoodCreateResponse = BaseResponse<Goods>
 
 export type ModalActionGoods = 'create' | 'update'
+
+export interface GoodUpdateRequest extends GoodCreateRequest {
+    id: string
+    is_active: boolean
+}
+
+export type GoodUpdateResponse = BaseResponse<Goods>

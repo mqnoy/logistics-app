@@ -2,7 +2,7 @@
 import { FC, ReactNode, useEffect, useState } from "react";
 import { Goods, ModalActionGoods } from "../types";
 import { TableCustom } from "./TableCustom";
-import { useLazyGetListGoodsQuery } from "../api";
+import { useLazyGetDetailGoodQuery, useLazyGetListGoodsQuery } from "../api";
 import { rtkUtils, toastUtils } from "../utils";
 import { FaPlus } from "react-icons/fa6";
 import { Modal } from "./Modal";
@@ -83,6 +83,25 @@ export const GoodsList: FC<GoodsListProps> = () => {
         setIsModalActiveCU(false);
     };
 
+
+    const [getDetail, { data: dataGetDetail, error: errorGetDetail, isLoading: isloadingGetDetail }] = useLazyGetDetailGoodQuery();
+    const handleActionUpdate = (props: Goods) => {
+        getDetail(props.id)
+        setModalTitle("Edit Goods")
+        setAction("update")
+        showModalCU()
+    }
+
+    useEffect(() => {
+        if (errorGetDetail) {
+            const errorApi = rtkUtils.parseErrorRtk(errorGetDetail);
+            toastUtils.fireToastError(errorApi)
+        } else if (isloadingGetDetail) {
+            console.debug('loading..');
+        }
+    }, [errorGetDetail, isloadingGetDetail])
+
+
     return (
         <div className="section">
             <Modal
@@ -92,6 +111,7 @@ export const GoodsList: FC<GoodsListProps> = () => {
                 content={
                     <GoodsForm
                         action={action}
+                        dataDetail={dataGetDetail?.data}
                         actionIsDone={(isDone, error) => {
                             if (isDone && !error) {
                                 toastUtils.fireToastSuccess("successfully", {
@@ -186,7 +206,7 @@ export const GoodsList: FC<GoodsListProps> = () => {
                                         <button
                                             className="button is-primary is-outlined"
                                             onClick={() => {
-
+                                                handleActionUpdate(item)
                                             }} >
                                             edit
                                         </button>
