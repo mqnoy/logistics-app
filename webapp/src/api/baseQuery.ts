@@ -7,7 +7,7 @@ export const baseQuery = fetchBaseQuery({
     prepareHeaders: (headers) => {
         const authCred = cookieUtils.getCredentials()
         if (authCred) {
-            headers.set('Authorization: Bearer', authCred.access_token)
+            headers.set('Authorization', `Bearer ${authCred.access_token}`)
         }
 
         headers.set('Access-Control-Allow-Origin', '*')
