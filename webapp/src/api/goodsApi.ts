@@ -40,6 +40,12 @@ export const goodsApi = createApi({
                 body: body,
             }),
         }),
+        deleteGood: builder.mutation<BaseResponse<null>, string>({
+            query: (id) => ({
+                url: `/goods/${id}`,
+                method: 'DELETE',
+            }),
+        }),
     }),
 })
 
@@ -49,4 +55,5 @@ export const {
     usePostCreateGoodMutation,
     useLazyGetDetailGoodQuery,
     usePutUpdateGoodMutation,
+    useDeleteGoodMutation,
 } = goodsApi

@@ -2,11 +2,12 @@
 import { FC, ReactNode, useEffect, useState } from "react";
 import { Goods, ModalActionGoods } from "../types";
 import { TableCustom } from "./TableCustom";
-import { useLazyGetDetailGoodQuery, useLazyGetListGoodsQuery } from "../api";
+import { useDeleteGoodMutation, useLazyGetDetailGoodQuery, useLazyGetListGoodsQuery } from "../api";
 import { rtkUtils, toastUtils } from "../utils";
 import { FaPlus } from "react-icons/fa6";
 import { Modal } from "./Modal";
 import { GoodDetail, GoodsForm } from ".";
+import { useConfirmationDialog } from "./ConfirmationDialog/hook";
 
 type GoodsListProps = unknown
 
@@ -108,8 +109,42 @@ export const GoodsList: FC<GoodsListProps> = () => {
         showModalCU()
     }
 
+
+    const [deleteGoods, { isLoading: isLoadingDeleteGoods, isSuccess: isSuccessDeleteGoods, error: errorRespDeleteGoods }] =
+        useDeleteGoodMutation()
+    useEffect(() => {
+        if (isSuccessDeleteGoods) {
+            trigger(Object.assign({
+                limit: 10,
+                offset: 0,
+                page: page,
+                orders: 'id desc',
+            }));
+            toastUtils.fireToastSuccess("item deleted")
+        } else if (errorRespDeleteGoods) {
+            const errorApi = rtkUtils.parseErrorRtk(errorRespDeleteGoods);
+            toastUtils.fireToastError(errorApi)
+        } else if (isLoadingDeleteGoods) {
+            console.debug('loading..');
+        }
+    }, [isSuccessDeleteGoods, errorRespDeleteGoods, isLoadingDeleteGoods])
+
+
+    const { showDialog, ConfirmationDialogComponent } = useConfirmationDialog();
+    const handleActionDelete = (props: Goods) => {
+        showDialog(
+            {
+                content: <p>Are you sure you want to delete this item?</p>,
+                onConfirm: () => {
+                    deleteGoods(props.id)
+                },
+            }
+        )
+    }
+
     return (
         <div className="section">
+            {ConfirmationDialogComponent}
             <Modal
                 title={modalTitle}
                 isActive={isModalActiveCU}
@@ -224,7 +259,7 @@ export const GoodsList: FC<GoodsListProps> = () => {
                                         <button
                                             className="button is-primary is-outlined"
                                             onClick={() => {
-
+                                                handleActionDelete(item)
                                             }} >
                                             delete
                                         </button>
