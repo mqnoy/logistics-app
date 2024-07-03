@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { GoodsListResponse, ListRequest } from '../types'
+import { GoodCreateRequest, GoodCreateResponse, GoodsListResponse, ListRequest } from '../types'
 import { baseQuery } from '.'
 
 export const goodsApi = createApi({
@@ -12,7 +12,15 @@ export const goodsApi = createApi({
                 params,
             }),
         }),
+        postCreateGood: builder.mutation<GoodCreateResponse, GoodCreateRequest>({
+            query: (body) => ({
+                url: '/goods',
+                method: 'POST',
+                body: body,
+            }),
+        }),
     }),
 })
 
-export const { useGetListGoodsQuery, useLazyGetListGoodsQuery } = goodsApi
+export const { useGetListGoodsQuery, useLazyGetListGoodsQuery, usePostCreateGoodMutation } =
+    goodsApi
