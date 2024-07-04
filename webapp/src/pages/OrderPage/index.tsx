@@ -6,6 +6,7 @@ import { Order, OrderTypeEnum } from '../../types/order'
 import { dateUtils } from '../../utils'
 import mockOrders from '@assets/mock/orders.json'
 import { DatePickerEventSelect } from '../../components/DatePicker/type'
+import { NavLink } from 'react-router-dom'
 
 export const OrderPage: FC = () => {
     // TODO: call service orderApi
@@ -38,7 +39,7 @@ export const OrderPage: FC = () => {
                             </select>
                         </div>
                     </div>
-                    <div className="column column is-10">
+                    <div className="column column is-7">
                         <p>Request date</p>
                         <div className="select is-primary">
                             <DatePicker
@@ -52,6 +53,12 @@ export const OrderPage: FC = () => {
                                 }}
                             />
                         </div>
+                    </div>
+                    <div className="column is-3 is-flex is-justify-content-flex-end">
+                        <p></p>
+                        <NavLink className="button is-primary has-text-white" to={'/orders/create'}>
+                            Create Order
+                        </NavLink>
                     </div>
                 </div>
                 {raw && <OrderList
