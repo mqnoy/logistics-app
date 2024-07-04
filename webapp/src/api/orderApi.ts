@@ -1,7 +1,9 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQuery } from '.'
 import {
+    BaseResponse,
     ListRequest,
+    Order,
     OrderCreateRequest,
     OrderCreateResponse,
     OrderListResponse,
@@ -33,7 +35,13 @@ export const orderApi = createApi({
                 params,
             }),
         }),
+        getDetailOrder: builder.query<BaseResponse<Order>, string>({
+            query: (id) => ({
+                url: `/orders/${id}`,
+            }),
+        }),
     }),
 })
 
-export const { usePostOrderCreateMutation, useLazyGetListOrdersQuery } = orderApi
+export const { usePostOrderCreateMutation, useLazyGetListOrdersQuery, useLazyGetDetailOrderQuery } =
+    orderApi
