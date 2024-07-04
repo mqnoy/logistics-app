@@ -14,7 +14,7 @@ export const OrderPage: FC = () => {
 
     return (
         <Layout>
-            <div className="section">
+            <div className="py-5">
                 <div className="columns">
                     <div className="column">
                         <span className="icon-text has-text-info">

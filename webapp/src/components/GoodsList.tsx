@@ -143,7 +143,7 @@ export const GoodsList: FC<GoodsListProps> = () => {
     }
 
     return (
-        <div className="section">
+        <div className="py-5">
             {ConfirmationDialogComponent}
             <Modal
                 title={modalTitle}
