@@ -2,6 +2,7 @@ import { RouterProvider } from "react-router-dom";
 import router from "./router";
 import "bulma/css/bulma.css";
 import 'react-toastify/dist/ReactToastify.css';
+import '@assets/css/app.css'
 import { Provider } from "react-redux";
 import { store } from "./redux";
 import { ToastContainer } from "react-toastify";
