@@ -4,6 +4,7 @@ import { DashboardPage } from '../pages'
 import { cookieUtils } from '../utils'
 import RegisterPage from '../pages/Register'
 import GoodsPage from '../pages/GoodsPage'
+import { OrderPage } from '../pages/OrderPage'
 
 const privateLoader = () => {
     const authCred = cookieUtils.getCredentials()
@@ -45,6 +46,11 @@ const router = createBrowserRouter([
     {
         path: '/goods',
         element: <GoodsPage />,
+        loader: privateLoader,
+    },
+    {
+        path: '/orders',
+        element: <OrderPage />,
         loader: privateLoader,
     },
 ])
