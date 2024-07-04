@@ -1,0 +1,9 @@
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:80
+    environment:
+      - VITE_REACT_APP_API_URL= http://localhost:8080
