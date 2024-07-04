@@ -21,12 +21,14 @@ services:
         - TAG=${TAG:-latest}
     environment:
       - LOGISTICS_APP_LOG_LEVEL=debug
-      - LOGISTICS_APP_DATABASE_MYSQL_HOST=todolist_db
+      - LOGISTICS_APP_DATABASE_MYSQL_HOST=logistics_db
       - LOGISTICS_APP_DATABASE_MYSQL_PORT=3306
       - LOGISTICS_APP_DATABASE_MYSQL_USERNAME=root
       - LOGISTICS_APP_DATABASE_MYSQL_PASSWORD=12345678
       - LOGISTICS_APP_DATABASE_MYSQL_DBNAME=logistics_app_db
       - LOGISTICS_APP_JWT_KEY=your-jwt-key
+      - LOGISTICS_APP_APP_ENABLE_CORS=true
+      - LOGISTICS_APP_APP_ALLOWORIGINS=*
     ports:
       - 8080:8080
     depends_on:
