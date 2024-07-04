@@ -2,8 +2,8 @@ import { FC, useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { DropdownSearch } from '../../components/DropdownSearch'
 import Layout from '../Layout'
-import { Goods, OrderTypeEnum } from '../../types'
-import { useLazyGetListGoodsQuery } from '../../api'
+import { Goods, OrderCreateRequest, OrderTypeEnum } from '../../types'
+import { useLazyGetListGoodsQuery, usePostOrderCreateMutation } from '../../api'
 import { rtkUtils, toastUtils } from '../../utils'
 import { useDebounce } from 'use-debounce'
 
@@ -14,7 +14,7 @@ type IFormOrder = {
 }
 
 export const OrderCreatePage: FC = () => {
-    const { register, formState: { errors }, handleSubmit, watch, setValue } = useForm<IFormOrder>({
+    const { register, reset, formState: { errors }, handleSubmit, watch, setValue } = useForm<IFormOrder>({
         defaultValues: {
             goodsCode: '',
             total: 0,
@@ -53,8 +53,37 @@ export const OrderCreatePage: FC = () => {
     }, [keywordDebounce])
 
 
+    const [postOrderCreate, { isLoading: isLoadingOrderCreate, isSuccess: isSuccessOrderCreate, error: errorOrderCreate }] = usePostOrderCreateMutation()
+    useEffect(() => {
+        if (isSuccessOrderCreate) {
+            toastUtils.fireToastSuccess("successfully", {
+                onClose() {
+                    handleReset()
+                },
+            })
+        } else if (errorOrderCreate) {
+            const errorApi = rtkUtils.parseErrorRtk(errorOrderCreate);
+            toastUtils.fireToastError(errorApi)
+
+        } else if (isLoadingOrderCreate) {
+            console.debug('loading...');
+        }
+    }, [isSuccessOrderCreate, errorOrderCreate, isLoadingOrderCreate])
+
     const onsubmit: SubmitHandler<IFormOrder> = (data: IFormOrder) => {
         console.debug('onsubmited', data)
+        const payload: OrderCreateRequest = {
+            good: {
+                code: data.goodsCode
+            },
+            total: Number(data.total),
+            type: Number(data.type)
+        }
+        postOrderCreate(payload)
+    }
+
+    const handleReset = () => {
+        reset()
     }
 
     return (
