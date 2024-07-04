@@ -1,17 +1,77 @@
-import { FC } from 'react'
+import { FC, useEffect, useState } from 'react'
 import Layout from '../Layout'
 import { DatePicker, OrderList } from '../../components'
-import { BaseResponse, ListResponse } from '../../types'
-import { Order, OrderTypeEnum } from '../../types/order'
-import { dateUtils } from '../../utils'
-import mockOrders from '@assets/mock/orders.json'
+import { OrderTypeEnum } from '../../types/order'
+import { dateUtils, rtkUtils, toastUtils } from '../../utils'
 import { DatePickerEventSelect } from '../../components/DatePicker/type'
 import { NavLink } from 'react-router-dom'
+import { useLazyGetListOrdersQuery } from '../../api'
 
 export const OrderPage: FC = () => {
-    // TODO: call service orderApi
-    const raw = mockOrders as BaseResponse<ListResponse<Order>>
-    console.log(raw.data);
+    const [page, setPage] = useState(1);
+    const [query, setQuery] = useState({
+        limit: 10,
+        offset: 0,
+        page: page,
+        orders: 'id desc',
+    })
+    const [requestDateQuery, setRequestDateQuery] = useState({
+        from: 0,
+        to: 0
+    })
+    const [orderType, setOrderType] = useState(0)
+
+    const [getListOrder, { data, error, isLoading }] = useLazyGetListOrdersQuery();
+    useEffect(() => {
+        if (error) {
+            const errorApi = rtkUtils.parseErrorRtk(error);
+            toastUtils.fireToastError(errorApi)
+
+        } else if (isLoading) {
+            console.log('loading...');
+        }
+    }, [error, isLoading])
+
+    const handleOnPageChange = (page: number) => {
+        setPage(page)
+    }
+
+    useEffect(() => {
+        const dateRange = [requestDateQuery.from, requestDateQuery.to]
+        setQuery({
+            ...query,
+            ...{
+                request_at_range: `[${dateRange.join(',')}]`
+            }
+        })
+    }, [requestDateQuery])
+
+    useEffect(() => {
+        setQuery({
+            ...query,
+            ...{
+                type: orderType
+            }
+        })
+    }, [orderType])
+
+
+    useEffect(() => {
+        setQuery({
+            ...query,
+            page: page
+        })
+    }, [page])
+
+    useEffect(() => {
+        getListOrder(query);
+    }, [query])
+
+
+    useEffect(() => {
+        getListOrder(query);
+    }, [])
+
 
     return (
         <Layout>
@@ -30,7 +90,7 @@ export const OrderPage: FC = () => {
                         <div className="select is-primary">
                             <select
                                 onChange={(e) => {
-                                    console.debug(`onchange: `, e.target.value);
+                                    setOrderType(Number(e.target.value))
                                 }}
                             >
                                 <option value={0}>- select type -</option>
@@ -48,8 +108,10 @@ export const OrderPage: FC = () => {
                                     const { startDate, endDate } = event.data
                                     const from = dateUtils.dateToEpoch(startDate)
                                     const to = dateUtils.dateToEpoch(endDate)
-                                    console.debug(from);
-                                    console.debug(to);
+                                    setRequestDateQuery({
+                                        from,
+                                        to
+                                    })
                                 }}
                             />
                         </div>
@@ -61,11 +123,9 @@ export const OrderPage: FC = () => {
                         </NavLink>
                     </div>
                 </div>
-                {raw && <OrderList
-                    onPageChange={() => {
-
-                    }}
-                    data={raw.data}
+                {data?.data && <OrderList
+                    onPageChange={handleOnPageChange}
+                    data={data?.data}
                 />}
             </div>
         </Layout>
