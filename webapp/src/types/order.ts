@@ -20,3 +20,15 @@ export enum OrderTypeEnum {
     ORDER_IN = 1,
     ORDER_OUT,
 }
+
+interface GoodOrderCreateRequest {
+    code: string
+}
+
+export interface OrderCreateRequest {
+    good: GoodOrderCreateRequest
+    total: number
+    type?: OrderTypeEnum
+}
+
+export type OrderCreateResponse = BaseResponse<Order>
