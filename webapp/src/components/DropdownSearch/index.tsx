@@ -35,8 +35,7 @@ export const DropdownSearch: FC<DropdownSearchProps<any>> = ({
         onSelected(found)
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const handleInputChange = (newValue: string, actionMeta: InputActionMeta) => {
+    const handleInputChange = (newValue: string, _actionMeta: InputActionMeta) => {
         // fire callback
         onSearch(newValue)
     }
