@@ -1,8 +1,11 @@
-import { FC, ReactNode } from 'react'
-import { Order, OrderTypeEnum } from '../types'
+import { FC, ReactNode, useState } from 'react'
+import { BaseResponse, Order, OrderTypeEnum } from '../types'
 import { TableCustom } from './TableCustom'
 import { ListResponse } from '../types'
 import { dateUtils } from '../utils'
+import { Modal } from './Modal'
+import { OrderDetail } from './OrderDetail'
+import mockOrder from '@assets/mock/order.json'
 
 type OrderListProps = {
     data?: ListResponse<Order>
@@ -22,8 +25,40 @@ export const OrderList: FC<OrderListProps> = ({ data, onPageChange }) => {
 
         return <span className="button is-rounded is-danger is-small has-text-white">Out</span>
     }
+
+    const [modalTitle, setModalTitle] = useState('')
+    const [isModalActive, setIsModalActive] = useState(false);
+    const showModal = () => {
+        setIsModalActive(true);
+    };
+
+    const closeModal = () => {
+        setIsModalActive(false);
+    };
+
+    const raw = mockOrder as BaseResponse<Order>
+    console.log(raw.data);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const handleActionDetail = (props: Order) => {
+        // TODO: Invoke service orderApi getDetail
+        // getDetail(props.id)
+        setModalTitle("Detail Order")
+        showModal()
+    }
+
     return (
         <>
+            <Modal
+                title={modalTitle}
+                isActive={isModalActive}
+                onClose={closeModal}
+                content={
+                    <OrderDetail
+                        data={raw.data}
+                    />
+                }
+            />
             {data && <TableCustom
                 onPageChange={onPageChange}
                 data={data}
@@ -46,9 +81,9 @@ export const OrderList: FC<OrderListProps> = ({ data, onPageChange }) => {
                                     <button
                                         className="button is-primary is-outlined"
                                         onClick={() => {
-                                            // TODO: handle action detail
+                                            handleActionDetail(item)
                                         }} >
-                                        view
+                                        detail
                                     </button>
                                 </p>
                             </div>
