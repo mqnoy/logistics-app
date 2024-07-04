@@ -1,11 +1,11 @@
-import { FC, ReactNode, useState } from 'react'
-import { BaseResponse, Order, OrderTypeEnum } from '../types'
+import { FC, ReactNode, useEffect, useState } from 'react'
+import { Order, OrderTypeEnum } from '../types'
 import { TableCustom } from './TableCustom'
 import { ListResponse } from '../types'
-import { dateUtils } from '../utils'
+import { dateUtils, rtkUtils, toastUtils } from '../utils'
 import { Modal } from './Modal'
 import { OrderDetail } from './OrderDetail'
-import mockOrder from '@assets/mock/order.json'
+import { useLazyGetDetailOrderQuery } from '../api'
 
 type OrderListProps = {
     data?: ListResponse<Order>
@@ -36,13 +36,20 @@ export const OrderList: FC<OrderListProps> = ({ data, onPageChange }) => {
         setIsModalActive(false);
     };
 
-    const raw = mockOrder as BaseResponse<Order>
-    console.log(raw.data);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [getDetail, { data: dataGetDetail, error: errorGetDetail, isLoading: isloadingGetDetail }] = useLazyGetDetailOrderQuery();
+    useEffect(() => {
+        if (errorGetDetail) {
+            const errorApi = rtkUtils.parseErrorRtk(errorGetDetail);
+            toastUtils.fireToastError(errorApi)
+        } else if (isloadingGetDetail) {
+            console.debug('loading..');
+        }
+    }, [errorGetDetail, isloadingGetDetail])
+
+
     const handleActionDetail = (props: Order) => {
-        // TODO: Invoke service orderApi getDetail
-        // getDetail(props.id)
+        getDetail(props.id)
         setModalTitle("Detail Order")
         showModal()
     }
@@ -55,7 +62,7 @@ export const OrderList: FC<OrderListProps> = ({ data, onPageChange }) => {
                 onClose={closeModal}
                 content={
                     <OrderDetail
-                        data={raw.data}
+                        data={dataGetDetail?.data}
                     />
                 }
             />
