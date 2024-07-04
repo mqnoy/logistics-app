@@ -14,55 +14,45 @@ type GoodsListProps = unknown
 export const GoodsList: FC<GoodsListProps> = () => {
     const [keyword, setKeyword] = useState('')
     const [page, setPage] = useState(1);
-    const [trigger, { data: goodsData, error, isLoading }] = useLazyGetListGoodsQuery();
+    const [query, setQuery] = useState({
+        limit: 10,
+        offset: 0,
+        page: page,
+        orders: 'id desc',
+    })
+    const [getList, { data: goodsData, error, isLoading }] = useLazyGetListGoodsQuery();
+    useEffect(() => {
+        if (error) {
+            const errorApi = rtkUtils.parseErrorRtk(error);
+            toastUtils.fireToastError(errorApi)
 
-    if (error) {
-        const errorApi = rtkUtils.parseErrorRtk(error);
-        toastUtils.fireToastError(errorApi)
-    }
-
-    if (isLoading) {
-        console.log(isLoading);
-    }
-
-    const handleOnPageChange = (page: number) => {
-        setPage(page)
-    }
-
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setKeyword(event.target.value);
-    };
+        } else if (isLoading) {
+            console.log('loading...');
+        }
+    }, [error, isLoading])
 
     const handleSearch = () => {
-        setPage(1);
-        trigger(Object.assign({
-            limit: 10,
-            offset: 0,
-            page: page,
-            orders: 'id desc',
-        }, {
-            keyword: keyword
-        },));
+        setQuery({
+            ...query,
+            page: 1,
+            ...{
+                keyword: keyword
+            }
+        })
     }
 
     useEffect(() => {
-        trigger(Object.assign({
-            limit: 10,
-            offset: 0,
-            page: page,
-            orders: 'id desc',
-        }));
+        setQuery({
+            ...query,
+            page: page
+        })
     }, [page])
 
 
     useEffect(() => {
-        trigger(Object.assign({
-            limit: 10,
-            offset: 0,
-            page: page,
-            orders: 'id desc',
-        }));
-    }, [])
+        getList(query);
+    }, [query])
+
 
     const renderIsActive = (data: boolean): ReactNode => {
         if (data) {
@@ -75,7 +65,6 @@ export const GoodsList: FC<GoodsListProps> = () => {
     const [isModalActiveCU, setIsModalActiveCU] = useState(false);
     const [modalTitle, setModalTitle] = useState('')
     const [action, setAction] = useState<ModalActionGoods>();
-
     const showModalCU = () => {
         setIsModalActiveCU(true);
     };
@@ -86,13 +75,6 @@ export const GoodsList: FC<GoodsListProps> = () => {
 
 
     const [getDetail, { data: dataGetDetail, error: errorGetDetail, isLoading: isloadingGetDetail }] = useLazyGetDetailGoodQuery();
-    const handleActionUpdate = (props: Goods) => {
-        getDetail(props.id)
-        setModalTitle("Edit Goods")
-        setAction("update")
-        showModalCU()
-    }
-
     useEffect(() => {
         if (errorGetDetail) {
             const errorApi = rtkUtils.parseErrorRtk(errorGetDetail);
@@ -102,24 +84,14 @@ export const GoodsList: FC<GoodsListProps> = () => {
         }
     }, [errorGetDetail, isloadingGetDetail])
 
-    const handleActionDetail = (props: Goods) => {
-        getDetail(props.id)
-        setModalTitle("Detail Goods")
-        setAction("detail")
-        showModalCU()
-    }
-
 
     const [deleteGoods, { isLoading: isLoadingDeleteGoods, isSuccess: isSuccessDeleteGoods, error: errorRespDeleteGoods }] =
         useDeleteGoodMutation()
     useEffect(() => {
         if (isSuccessDeleteGoods) {
-            trigger(Object.assign({
-                limit: 10,
-                offset: 0,
-                page: page,
-                orders: 'id desc',
-            }));
+            setQuery({
+                ...query,
+            })
             toastUtils.fireToastSuccess("item deleted")
         } else if (errorRespDeleteGoods) {
             const errorApi = rtkUtils.parseErrorRtk(errorRespDeleteGoods);
@@ -142,6 +114,32 @@ export const GoodsList: FC<GoodsListProps> = () => {
         )
     }
 
+    const handleActionDetail = (props: Goods) => {
+        getDetail(props.id)
+        setModalTitle("Detail Goods")
+        setAction("detail")
+        showModalCU()
+    }
+
+    const handleActionUpdate = (props: Goods) => {
+        getDetail(props.id)
+        setModalTitle("Edit Goods")
+        setAction("update")
+        showModalCU()
+    }
+
+    const handleOnPageChange = (page: number) => {
+        setPage(page)
+    }
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setKeyword(event.target.value);
+    };
+
+    useEffect(() => {
+        getList(query);
+    }, [])
+
     return (
         <div className="py-5">
             {ConfirmationDialogComponent}
@@ -159,12 +157,9 @@ export const GoodsList: FC<GoodsListProps> = () => {
                                     toastUtils.fireToastSuccess("successfully", {
                                         onClose() {
                                             setIsModalActiveCU(false)
-                                            trigger(Object.assign({
-                                                limit: 10,
-                                                offset: 0,
-                                                page: page,
-                                                orders: 'id desc',
-                                            }));
+                                            setQuery({
+                                                ...query,
+                                            })
                                         },
                                     })
                                 }
