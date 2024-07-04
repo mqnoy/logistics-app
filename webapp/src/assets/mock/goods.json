@@ -1,0 +1,62 @@
+{
+    "success": true,
+    "message": "GetListGoods",
+    "data": {
+        "rows": [
+            {
+                "id": "bfa29f49-12fe-4838-9d49-fb55180cf9e6",
+                "code": "MOUSE-02",
+                "name": "mouse",
+                "description": "mouse aja",
+                "is_active": false,
+                "stock": {
+                    "total": 0
+                },
+                "created_at": 1720029115,
+                "updated_at": 1720029173
+            },
+            {
+                "id": "f28324ce-4e62-4234-b9b3-fd2e5ec68c6d",
+                "code": "LPT-0001",
+                "name": "laptop edited",
+                "description": "laptop gaming edited",
+                "is_active": true,
+                "stock": {
+                    "total": 0
+                },
+                "created_at": 1720019490,
+                "updated_at": 1720028952
+            },
+            {
+                "id": "dd6be407-aec4-4284-952c-3ac2a18e423f",
+                "code": "LPT-00010",
+                "name": "laptop edited",
+                "description": "laptop gaming edited",
+                "is_active": true,
+                "stock": {
+                    "total": 0
+                },
+                "created_at": 1720029162,
+                "updated_at": 1720029162
+            },
+            {
+                "id": "8d5ed5b5-a6ca-4662-ad8a-b4da4dfca89c",
+                "code": "KBYD-DA-Z",
+                "name": "Digital Aliance key",
+                "description": "da z",
+                "is_active": true,
+                "stock": {
+                    "total": 1
+                },
+                "created_at": 1720072659,
+                "updated_at": 1720072659
+            }
+        ],
+        "metadata": {
+            "page": 1,
+            "limit": 10,
+            "total_pages": 1,
+            "total_items": 4
+        }
+    }
+}
