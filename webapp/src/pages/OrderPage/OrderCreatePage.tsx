@@ -2,8 +2,10 @@ import { FC, useEffect, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { DropdownSearch } from '../../components/DropdownSearch'
 import Layout from '../Layout'
-import { BaseResponse, Goods, ListResponse, OrderTypeEnum } from '../../types'
-import mockGoods from '@assets/mock/goods.json'
+import { Goods, OrderTypeEnum } from '../../types'
+import { useLazyGetListGoodsQuery } from '../../api'
+import { rtkUtils, toastUtils } from '../../utils'
+import { useDebounce } from 'use-debounce'
 
 type IFormOrder = {
     goodsCode: string,
@@ -23,19 +25,37 @@ export const OrderCreatePage: FC = () => {
 
     const total = watch('total')
 
+    const [dataGoods, setDataGoods] = useState<Goods[]>([])
+    const [keyword, setKeyword] = useState('')
+    const [keywordDebounce] = useDebounce(keyword, 800);
+    const [getListGoods, { data: dataListGoods, error: errorGoods, isLoading: isLoadingGoods }] = useLazyGetListGoodsQuery();
+
+    useEffect(() => {
+        if (dataListGoods) {
+            setDataGoods(dataListGoods.data.rows)
+        } else if (errorGoods) {
+            const errorApi = rtkUtils.parseErrorRtk(errorGoods);
+            toastUtils.fireToastError(errorApi)
+        } else if (isLoadingGoods) {
+            console.log(isLoadingGoods);
+        }
+    }, [dataListGoods, errorGoods, isLoadingGoods])
+
+    useEffect(() => {
+        getListGoods(Object.assign({
+            limit: 10,
+            offset: 0,
+            page: 1,
+            orders: 'id desc',
+        }, {
+            keyword: keywordDebounce
+        },));
+    }, [keywordDebounce])
+
+
     const onsubmit: SubmitHandler<IFormOrder> = (data: IFormOrder) => {
         console.debug('onsubmited', data)
     }
-
-    // TODO: Implement service orderApi
-    const raw = mockGoods as BaseResponse<ListResponse<Goods>>
-    console.log(raw.data);
-    const [mockDataGoods, setMockDataGoods] = useState<Goods[]>([])
-
-    useEffect(() => {
-        setMockDataGoods(raw.data.rows)
-    }, [])
-
 
     return (
         <Layout>
@@ -57,7 +77,7 @@ export const OrderCreatePage: FC = () => {
                             <DropdownSearch
                                 isRequired={true}
                                 name="goodsCode"
-                                items={mockDataGoods}
+                                items={dataGoods}
                                 renderItem={(item: Goods) => {
                                     return item.code
                                 }}
@@ -66,8 +86,7 @@ export const OrderCreatePage: FC = () => {
                                     setValue('goodsCode', selectedData.code)
                                 }}
                                 onSearch={(v: string) => {
-                                    // TODO: invoke goodsApi lazy query
-                                    console.log(v);
+                                    setKeyword(v)
                                 }}
                             />
 
