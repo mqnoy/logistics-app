@@ -31,3 +31,5 @@ export interface GoodUpdateRequest extends GoodCreateRequest {
 }
 
 export type GoodUpdateResponse = BaseResponse<Goods>
+
+export type GoodSnapshot = Goods
