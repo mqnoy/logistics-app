@@ -1,6 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQuery } from '.'
-import { OrderCreateRequest, OrderCreateResponse, OrderTypeEnum } from '../types'
+import {
+    ListRequest,
+    OrderCreateRequest,
+    OrderCreateResponse,
+    OrderListResponse,
+    OrderTypeEnum,
+} from '../types'
 
 export const orderApi = createApi({
     reducerPath: 'orderApi',
@@ -21,7 +27,13 @@ export const orderApi = createApi({
                 return q
             },
         }),
+        getListOrders: builder.query<OrderListResponse, ListRequest>({
+            query: (params) => ({
+                url: '/orders/goods',
+                params,
+            }),
+        }),
     }),
 })
 
-export const { usePostOrderCreateMutation } = orderApi
+export const { usePostOrderCreateMutation, useLazyGetListOrdersQuery } = orderApi
