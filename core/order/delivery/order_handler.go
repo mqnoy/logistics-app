@@ -93,11 +93,13 @@ func (h orderHandler) GetListOrders(w http.ResponseWriter, r *http.Request) {
 	orderType, _ := strconv.Atoi(handler.DefaultQuery(r, "type", "0"))
 	requestAtRange := handler.ParseQueryToInt64Array(handler.DefaultQuery(r, "request_at_range", "[]"))
 	orders := handler.DefaultQuery(r, "orders", "id desc")
+	goodsId := handler.DefaultQuery(r, "goodId", "")
 
 	param := dto.ListParam[dto.FilterOrderParams]{
 		Filters: dto.FilterOrderParams{
 			RequestAt: requestAtRange,
 			OrderType: orderType,
+			GoodId:    goodsId,
 		},
 		Orders: orders,
 		Pagination: dto.Pagination{

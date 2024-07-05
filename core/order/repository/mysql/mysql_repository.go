@@ -78,6 +78,12 @@ func (m mysqlOrderRepository) SelectAndCountOrder(param dto.ListParam[dto.Filter
 		mDB = m.db.Clauses(whereClause)
 	}
 
+	if filters.GoodId != "" {
+		mDB = m.db.Joins("INNER JOIN OrderItem ON OrderItem.order_id = Order.id").
+			Where("OrderItem.good_id = ?", filters.GoodId).
+			Clauses(whereClause)
+	}
+
 	mDB.Model(&model.Order{}).Count(&count)
 
 	if err = mDB.

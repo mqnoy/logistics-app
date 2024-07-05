@@ -42,6 +42,7 @@ func (t *OrderInRequest) Bind(r *http.Request) error {
 type FilterOrderParams struct {
 	RequestAt []int64
 	OrderType int
+	GoodId    string
 }
 
 type OrderCreateMultipleRequest struct {
