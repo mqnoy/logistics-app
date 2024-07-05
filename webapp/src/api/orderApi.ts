@@ -3,6 +3,8 @@ import { baseQuery } from '.'
 import {
     BaseResponse,
     ListRequest,
+    MultipleOrderCreateRequest,
+    MultipleOrderCreateResponse,
     Order,
     OrderCreateRequest,
     OrderCreateResponse,
@@ -40,8 +42,30 @@ export const orderApi = createApi({
                 url: `/orders/${id}`,
             }),
         }),
+        postMultipleOrderCreate: builder.mutation<
+            BaseResponse<MultipleOrderCreateResponse>,
+            MultipleOrderCreateRequest
+        >({
+            query: (body) => {
+                const q = {
+                    url: '',
+                    method: 'POST',
+                    body: body,
+                }
+                if (body.type === OrderTypeEnum.ORDER_IN) {
+                    q.url = '/orders/multiple/goods/in'
+                } else {
+                    q.url = '/orders/multiple/goods/out'
+                }
+                return q
+            },
+        }),
     }),
 })
 
-export const { usePostOrderCreateMutation, useLazyGetListOrdersQuery, useLazyGetDetailOrderQuery } =
-    orderApi
+export const {
+    usePostOrderCreateMutation,
+    useLazyGetListOrdersQuery,
+    useLazyGetDetailOrderQuery,
+    usePostMultipleOrderCreateMutation,
+} = orderApi
