@@ -1,33 +1,32 @@
-
-import { FC, ReactNode, useEffect, useState } from "react";
-import { Goods, ModalActionGoods } from "../types";
-import { TableCustom } from "./TableCustom";
-import { useDeleteGoodMutation, useLazyGetDetailGoodQuery, useLazyGetListGoodsQuery } from "../api";
-import { rtkUtils, toastUtils } from "../utils";
-import { FaPlus } from "react-icons/fa6";
-import { Modal } from "./Modal";
-import { GoodDetail, GoodsForm } from ".";
-import { useConfirmationDialog } from "./ConfirmationDialog/hook";
+import { FC, ReactNode, useEffect, useState } from 'react'
+import { Goods, ModalActionGoods } from '../types'
+import { TableCustom } from './TableCustom'
+import { useDeleteGoodMutation, useLazyGetDetailGoodQuery, useLazyGetListGoodsQuery } from '../api'
+import { rtkUtils, toastUtils } from '../utils'
+import { FaPlus } from 'react-icons/fa6'
+import { Modal } from './Modal'
+import { GoodDetail, GoodsForm } from '.'
+import { useConfirmationDialog } from './ConfirmationDialog/hook'
+import { NavLink } from 'react-router-dom'
 
 type GoodsListProps = unknown
 
 export const GoodsList: FC<GoodsListProps> = () => {
     const [keyword, setKeyword] = useState('')
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(1)
     const [query, setQuery] = useState({
         limit: 10,
         offset: 0,
         page: page,
         orders: 'id desc',
     })
-    const [getList, { data: goodsData, error, isLoading }] = useLazyGetListGoodsQuery();
+    const [getList, { data: goodsData, error, isLoading }] = useLazyGetListGoodsQuery()
     useEffect(() => {
         if (error) {
-            const errorApi = rtkUtils.parseErrorRtk(error);
+            const errorApi = rtkUtils.parseErrorRtk(error)
             toastUtils.fireToastError(errorApi)
-
         } else if (isLoading) {
-            console.log('loading...');
+            console.log('loading...')
         }
     }, [error, isLoading])
 
@@ -36,23 +35,21 @@ export const GoodsList: FC<GoodsListProps> = () => {
             ...query,
             page: 1,
             ...{
-                keyword: keyword
-            }
+                keyword: keyword,
+            },
         })
     }
 
     useEffect(() => {
         setQuery({
             ...query,
-            page: page
+            page: page,
         })
     }, [page])
 
-
     useEffect(() => {
-        getList(query);
+        getList(query)
     }, [query])
-
 
     const renderIsActive = (data: boolean): ReactNode => {
         if (data) {
@@ -62,69 +59,73 @@ export const GoodsList: FC<GoodsListProps> = () => {
         return <span className="button is-danger is-small has-text-white">Inactive</span>
     }
 
-    const [isModalActiveCU, setIsModalActiveCU] = useState(false);
+    const [isModalActiveCU, setIsModalActiveCU] = useState(false)
     const [modalTitle, setModalTitle] = useState('')
-    const [action, setAction] = useState<ModalActionGoods>();
+    const [action, setAction] = useState<ModalActionGoods>()
     const showModalCU = () => {
-        setIsModalActiveCU(true);
-    };
+        setIsModalActiveCU(true)
+    }
 
     const closeModal = () => {
-        setIsModalActiveCU(false);
-    };
+        setIsModalActiveCU(false)
+    }
 
-
-    const [getDetail, { data: dataGetDetail, error: errorGetDetail, isLoading: isloadingGetDetail }] = useLazyGetDetailGoodQuery();
+    const [
+        getDetail,
+        { data: dataGetDetail, error: errorGetDetail, isLoading: isloadingGetDetail },
+    ] = useLazyGetDetailGoodQuery()
     useEffect(() => {
         if (errorGetDetail) {
-            const errorApi = rtkUtils.parseErrorRtk(errorGetDetail);
+            const errorApi = rtkUtils.parseErrorRtk(errorGetDetail)
             toastUtils.fireToastError(errorApi)
         } else if (isloadingGetDetail) {
-            console.debug('loading..');
+            console.debug('loading..')
         }
     }, [errorGetDetail, isloadingGetDetail])
 
-
-    const [deleteGoods, { isLoading: isLoadingDeleteGoods, isSuccess: isSuccessDeleteGoods, error: errorRespDeleteGoods }] =
-        useDeleteGoodMutation()
+    const [
+        deleteGoods,
+        {
+            isLoading: isLoadingDeleteGoods,
+            isSuccess: isSuccessDeleteGoods,
+            error: errorRespDeleteGoods,
+        },
+    ] = useDeleteGoodMutation()
     useEffect(() => {
         if (isSuccessDeleteGoods) {
             setQuery({
                 ...query,
             })
-            toastUtils.fireToastSuccess("item deleted")
+            toastUtils.fireToastSuccess('item deleted')
         } else if (errorRespDeleteGoods) {
-            const errorApi = rtkUtils.parseErrorRtk(errorRespDeleteGoods);
+            const errorApi = rtkUtils.parseErrorRtk(errorRespDeleteGoods)
             toastUtils.fireToastError(errorApi)
         } else if (isLoadingDeleteGoods) {
-            console.debug('loading..');
+            console.debug('loading..')
         }
     }, [isSuccessDeleteGoods, errorRespDeleteGoods, isLoadingDeleteGoods])
 
-
-    const { showDialog, ConfirmationDialogComponent } = useConfirmationDialog();
+    const { showDialog, ConfirmationDialogComponent } = useConfirmationDialog()
     const handleActionDelete = (props: Goods) => {
-        showDialog(
-            {
-                content: <p>Are you sure you want to delete this item?</p>,
-                onConfirm: () => {
-                    deleteGoods(props.id)
-                },
-            }
-        )
+        showDialog({
+            content: <p>Are you sure you want to delete this item?</p>,
+            onConfirm: () => {
+                deleteGoods(props.id)
+            },
+        })
     }
 
     const handleActionDetail = (props: Goods) => {
         getDetail(props.id)
-        setModalTitle("Detail Goods")
-        setAction("detail")
+        setModalTitle('Detail Goods')
+        setAction('detail')
         showModalCU()
     }
 
     const handleActionUpdate = (props: Goods) => {
         getDetail(props.id)
-        setModalTitle("Edit Goods")
-        setAction("update")
+        setModalTitle('Edit Goods')
+        setAction('update')
         showModalCU()
     }
 
@@ -133,11 +134,11 @@ export const GoodsList: FC<GoodsListProps> = () => {
     }
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setKeyword(event.target.value);
-    };
+        setKeyword(event.target.value)
+    }
 
     useEffect(() => {
-        getList(query);
+        getList(query)
     }, [])
 
     return (
@@ -148,13 +149,13 @@ export const GoodsList: FC<GoodsListProps> = () => {
                 isActive={isModalActiveCU}
                 onClose={closeModal}
                 content={
-                    action === "create" || action === "update" ?
+                    action === 'create' || action === 'update' ? (
                         <GoodsForm
                             action={action}
                             dataDetail={dataGetDetail?.data}
                             actionIsDone={(isDone, error) => {
                                 if (isDone && !error) {
-                                    toastUtils.fireToastSuccess("successfully", {
+                                    toastUtils.fireToastSuccess('successfully', {
                                         onClose() {
                                             setIsModalActiveCU(false)
                                             setQuery({
@@ -168,25 +169,29 @@ export const GoodsList: FC<GoodsListProps> = () => {
                                     toastUtils.fireToastError(error)
                                 }
                             }}
-                        /> : <GoodDetail
-                            data={dataGetDetail?.data}
                         />
+                    ) : (
+                        <GoodDetail data={dataGetDetail?.data} />
+                    )
                 }
             />
             <div className="columns">
                 <div className="column">
                     <span className="icon-text has-text-info">
                         <h5 className="title">Goods</h5>
-                        <button className="button is-primary is-small"
+                        <button
+                            className="button is-primary is-small"
                             aria-label="add new goods"
                             onClick={() => {
-                                setModalTitle("Add new Goods")
-                                setAction("create")
+                                setModalTitle('Add new Goods')
+                                setAction('create')
                                 showModalCU()
                             }}
-                        > <FaPlus className="has-text-white" /></button>
+                        >
+                            {' '}
+                            <FaPlus className="has-text-white" />
+                        </button>
                     </span>
-
                 </div>
                 <div className="column is-flex is-justify-content-flex-end">
                     <div className="field has-addons">
@@ -210,9 +215,9 @@ export const GoodsList: FC<GoodsListProps> = () => {
                     </div>
                 </div>
             </div>
-            {goodsData?.data &&
+            {goodsData?.data && (
                 <TableCustom
-                    key={"a"}
+                    key={'a'}
                     onPageChange={handleOnPageChange}
                     data={goodsData.data}
                     tableHead={
@@ -225,46 +230,59 @@ export const GoodsList: FC<GoodsListProps> = () => {
                         </>
                     }
                     renderRow={(item: Goods) => {
-                        return < tr key={item.id} >
-                            <td>{item.code}</td>
-                            <td>{item.name}</td>
-                            <td>{renderIsActive(item.is_active)}</td>
-                            <td>{item.stock.total}</td>
-                            <td>
-                                <div className="field is-grouped">
-                                    <p className="control">
-                                        <button
-                                            className="button is-primary is-outlined"
-                                            onClick={() => {
-                                                handleActionDetail(item)
-                                            }} >
-                                            view
-                                        </button>
-                                    </p>
-                                    <p className="control">
-                                        <button
-                                            className="button is-primary is-outlined"
-                                            onClick={() => {
-                                                handleActionUpdate(item)
-                                            }} >
-                                            edit
-                                        </button>
-                                    </p>
-                                    <p className="control">
-                                        <button
-                                            className="button is-primary is-outlined"
-                                            onClick={() => {
-                                                handleActionDelete(item)
-                                            }} >
-                                            delete
-                                        </button>
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
+                        return (
+                            <tr key={item.id}>
+                                <td>{item.code}</td>
+                                <td>{item.name}</td>
+                                <td>{renderIsActive(item.is_active)}</td>
+                                <td>{item.stock.total}</td>
+                                <td>
+                                    <div className="field is-grouped">
+                                        <p className="control">
+                                            <button
+                                                className="button is-primary is-outlined"
+                                                onClick={() => {
+                                                    handleActionDetail(item)
+                                                }}
+                                            >
+                                                view
+                                            </button>
+                                        </p>
+                                        <p className="control">
+                                            <button
+                                                className="button is-primary is-outlined"
+                                                onClick={() => {
+                                                    handleActionUpdate(item)
+                                                }}
+                                            >
+                                                edit
+                                            </button>
+                                        </p>
+                                        <p className="control">
+                                            <button
+                                                className="button is-primary is-outlined"
+                                                onClick={() => {
+                                                    handleActionDelete(item)
+                                                }}
+                                            >
+                                                delete
+                                            </button>
+                                        </p>
+                                        <p className="control">
+                                            <NavLink
+                                                className="button is-primary is-outlined"
+                                                to={`/goods/${item.id}/history`}
+                                            >
+                                                order history
+                                            </NavLink>
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        )
                     }}
                 />
-            }
-        </div >
+            )}
+        </div>
     )
 }
