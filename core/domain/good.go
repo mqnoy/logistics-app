@@ -18,6 +18,7 @@ type GoodUseCase interface {
 	IncreaseStock(ctx context.Context, param dto.UpdateParam[dto.GoodStockRequest]) error
 	DecreaseStock(ctx context.Context, param dto.UpdateParam[dto.GoodStockRequest]) error
 	DecreaseStockV2(ctx context.Context, param dto.UpdateParam[dto.GoodStockRequest]) error
+	CheckAvailabilityStock(stock int, stockOut int) error
 }
 
 type GoodRepository interface {
