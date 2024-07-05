@@ -99,10 +99,17 @@ func (u *orderUseCase) ComposeOrder(m *model.Order) (resp dto.OrderResponse, err
 		return resp, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
 	}
 
-	var goodResponse dto.GoodResponse
-	if err := json.Unmarshal(goodSnapshotCol, &goodResponse); err != nil {
-		log.Println(err)
-		return resp, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	var goodResponse *dto.GoodResponse
+	if goodSnapshotCol != nil && len(goodSnapshotCol) != 2 {
+		if err := json.Unmarshal(goodSnapshotCol, &goodResponse); err != nil {
+			log.Println(err)
+		}
+	}
+
+	// compose orderItems
+	var items []dto.OrderItemResponse
+	if len(m.OrderItem) != 0 {
+		items = u.ComposeListOrderItem(m.OrderItem)
 	}
 
 	return dto.OrderResponse{
@@ -115,6 +122,8 @@ func (u *orderUseCase) ComposeOrder(m *model.Order) (resp dto.OrderResponse, err
 		GoodSnapshotResponse: goodResponse,
 		Total:                m.Total,
 		Timestamp:            dto.ComposeTimestamp(m.TimestampColumn),
+		CountItem:            m.CountItem,
+		Items:                items,
 	}, nil
 }
 
@@ -434,4 +443,43 @@ func (u *orderUseCase) ComposeOrderCreateMultiple(m *model.Order, success, faile
 		Failed:    failedArr,
 		Timestamp: dto.ComposeTimestamp(m.TimestampColumn),
 	}
+}
+
+func (u *orderUseCase) ComposeOrderItem(m *model.OrderItem) (resp dto.OrderItemResponse, err error) {
+	goodSnapshotCol, err := m.GoodSnapShotColumn.ParseGoodSnapshot()
+	if err != nil {
+		log.Println(err)
+		return resp, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+	}
+
+	var goodResponse dto.GoodResponse
+	if goodSnapshotCol != nil {
+		if err := json.Unmarshal(goodSnapshotCol, &goodResponse); err != nil {
+			log.Println(err)
+			return resp, cerror.WrapError(http.StatusInternalServerError, fmt.Errorf("internal server error"))
+		}
+	}
+
+	return dto.OrderItemResponse{
+		ID:                   m.ID,
+		GoodSnapshotResponse: goodResponse,
+		Total:                m.Total,
+		Timestamp:            dto.ComposeTimestamp(m.TimestampColumn),
+	}, nil
+}
+
+func (u *orderUseCase) ComposeListOrderItem(m []*model.OrderItem) []dto.OrderItemResponse {
+	results := make([]dto.OrderItemResponse, len(m))
+	for idx, el := range m {
+		// compose order
+		resp, err := u.ComposeOrderItem(el)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		results[idx] = resp
+	}
+
+	return results
 }
