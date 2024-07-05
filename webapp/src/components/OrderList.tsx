@@ -13,7 +13,6 @@ type OrderListProps = {
 }
 
 export const OrderList: FC<OrderListProps> = ({ data, onPageChange }) => {
-
     const renderRequestAt = (d: number): string => {
         return dateUtils.epochNumberToDateTimeStr(d)
     }
@@ -27,30 +26,31 @@ export const OrderList: FC<OrderListProps> = ({ data, onPageChange }) => {
     }
 
     const [modalTitle, setModalTitle] = useState('')
-    const [isModalActive, setIsModalActive] = useState(false);
+    const [isModalActive, setIsModalActive] = useState(false)
     const showModal = () => {
-        setIsModalActive(true);
-    };
+        setIsModalActive(true)
+    }
 
     const closeModal = () => {
-        setIsModalActive(false);
-    };
+        setIsModalActive(false)
+    }
 
-
-    const [getDetail, { data: dataGetDetail, error: errorGetDetail, isLoading: isloadingGetDetail }] = useLazyGetDetailOrderQuery();
+    const [
+        getDetail,
+        { data: dataGetDetail, error: errorGetDetail, isLoading: isloadingGetDetail },
+    ] = useLazyGetDetailOrderQuery()
     useEffect(() => {
         if (errorGetDetail) {
-            const errorApi = rtkUtils.parseErrorRtk(errorGetDetail);
+            const errorApi = rtkUtils.parseErrorRtk(errorGetDetail)
             toastUtils.fireToastError(errorApi)
         } else if (isloadingGetDetail) {
-            console.debug('loading..');
+            console.debug('loading..')
         }
     }, [errorGetDetail, isloadingGetDetail])
 
-
     const handleActionDetail = (props: Order) => {
         getDetail(props.id)
-        setModalTitle("Detail Order")
+        setModalTitle('Detail Order')
         showModal()
     }
 
@@ -60,45 +60,45 @@ export const OrderList: FC<OrderListProps> = ({ data, onPageChange }) => {
                 title={modalTitle}
                 isActive={isModalActive}
                 onClose={closeModal}
-                content={
-                    <OrderDetail
-                        data={dataGetDetail?.data}
-                    />
-                }
+                content={<OrderDetail data={dataGetDetail?.data} />}
             />
-            {data && <TableCustom
-                onPageChange={onPageChange}
-                data={data}
-                tableHead={
-                    <>
-                        <th>type</th>
-                        <th>total</th>
-                        <th>request at</th>
-                        <th>Action</th>
-                    </>
-                }
-                renderRow={(item: Order) => {
-                    return < tr key={item.id} >
-                        <td>{renderOrderType(item.type.id)}</td>
-                        <td>{item.total}</td>
-                        <td>{renderRequestAt(item.request_at)}</td>
-                        <td>
-                            <div className="field is-grouped">
-                                <p className="control">
-                                    <button
-                                        className="button is-primary is-outlined"
-                                        onClick={() => {
-                                            handleActionDetail(item)
-                                        }} >
-                                        detail
-                                    </button>
-                                </p>
-                            </div>
-                        </td>
-                    </tr>
-                }}
-            />
-            }
+            {data && (
+                <TableCustom
+                    onPageChange={onPageChange}
+                    data={data}
+                    tableHead={
+                        <>
+                            <th>type</th>
+                            <th>total</th>
+                            <th>request at</th>
+                            <th>Action</th>
+                        </>
+                    }
+                    renderRow={(item: Order) => {
+                        return (
+                            <tr key={item.id}>
+                                <td>{renderOrderType(item.type.id)}</td>
+                                <td>{item.count_item}</td>
+                                <td>{renderRequestAt(item.request_at)}</td>
+                                <td>
+                                    <div className="field is-grouped">
+                                        <p className="control">
+                                            <button
+                                                className="button is-primary is-outlined"
+                                                onClick={() => {
+                                                    handleActionDetail(item)
+                                                }}
+                                            >
+                                                detail
+                                            </button>
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        )
+                    }}
+                />
+            )}
         </>
     )
 }

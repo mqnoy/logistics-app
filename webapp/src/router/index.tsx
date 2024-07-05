@@ -7,6 +7,7 @@ import GoodsPage from '../pages/GoodsPage'
 import { OrderPage } from '../pages/OrderPage'
 import { OrderCreatePage } from '../pages/OrderPage/OrderCreatePage'
 import { OrderCreatePageV2 } from '../pages/OrderPage/OrderCreatePageV2'
+import { GoodHistoryOrder } from '../pages/GoodsPage/GoodHistoryOrder'
 
 const privateLoader = () => {
     const authCred = cookieUtils.getCredentials()
@@ -63,6 +64,11 @@ const router = createBrowserRouter([
     {
         path: '/orders/create/v2',
         element: <OrderCreatePageV2 />,
+        loader: privateLoader,
+    },
+    {
+        path: '/goods/:id/history',
+        element: <GoodHistoryOrder />,
         loader: privateLoader,
     },
 ])

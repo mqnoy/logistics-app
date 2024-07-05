@@ -7,6 +7,8 @@ export interface Order extends TimestampResponse {
     type: OrderType
     total: number
     good_snapshot?: GoodSnapshot
+    count_item: number
+    items: OrderItemResponse[]
 }
 
 export interface OrderType {
@@ -53,4 +55,10 @@ export interface MultipleOrderCreateResponse {
     id: string
     success: OrderItemReason[]
     failed: OrderItemReason[]
+}
+
+export interface OrderItemResponse {
+    id: string
+    total: number
+    good_snapshot: GoodSnapshot
 }
