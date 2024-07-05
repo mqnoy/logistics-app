@@ -32,3 +32,25 @@ export interface OrderCreateRequest {
 }
 
 export type OrderCreateResponse = BaseResponse<Order>
+
+export interface MultipleOrderCreateRequest {
+    items: OrderItemRequest[]
+    type?: OrderTypeEnum
+}
+
+export interface OrderItemRequest {
+    code: string
+    total: number
+}
+
+export interface OrderItemReason {
+    code: string
+    total: number
+    reason: string
+}
+
+export interface MultipleOrderCreateResponse {
+    id: string
+    success: OrderItemReason[]
+    failed: OrderItemReason[]
+}

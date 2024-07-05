@@ -6,6 +6,7 @@ import RegisterPage from '../pages/Register'
 import GoodsPage from '../pages/GoodsPage'
 import { OrderPage } from '../pages/OrderPage'
 import { OrderCreatePage } from '../pages/OrderPage/OrderCreatePage'
+import { OrderCreatePageV2 } from '../pages/OrderPage/OrderCreatePageV2'
 
 const privateLoader = () => {
     const authCred = cookieUtils.getCredentials()
@@ -57,6 +58,11 @@ const router = createBrowserRouter([
     {
         path: '/orders/create',
         element: <OrderCreatePage />,
+        loader: privateLoader,
+    },
+    {
+        path: '/orders/create/v2',
+        element: <OrderCreatePageV2 />,
         loader: privateLoader,
     },
 ])

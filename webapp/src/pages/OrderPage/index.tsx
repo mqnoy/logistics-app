@@ -8,7 +8,7 @@ import { NavLink } from 'react-router-dom'
 import { useLazyGetListOrdersQuery } from '../../api'
 
 export const OrderPage: FC = () => {
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(1)
     const [query, setQuery] = useState({
         limit: 10,
         offset: 0,
@@ -17,18 +17,17 @@ export const OrderPage: FC = () => {
     })
     const [requestDateQuery, setRequestDateQuery] = useState({
         from: 0,
-        to: 0
+        to: 0,
     })
     const [orderType, setOrderType] = useState(0)
 
-    const [getListOrder, { data, error, isLoading }] = useLazyGetListOrdersQuery();
+    const [getListOrder, { data, error, isLoading }] = useLazyGetListOrdersQuery()
     useEffect(() => {
         if (error) {
-            const errorApi = rtkUtils.parseErrorRtk(error);
+            const errorApi = rtkUtils.parseErrorRtk(error)
             toastUtils.fireToastError(errorApi)
-
         } else if (isLoading) {
-            console.log('loading...');
+            console.log('loading...')
         }
     }, [error, isLoading])
 
@@ -41,8 +40,8 @@ export const OrderPage: FC = () => {
         setQuery({
             ...query,
             ...{
-                request_at_range: `[${dateRange.join(',')}]`
-            }
+                request_at_range: `[${dateRange.join(',')}]`,
+            },
         })
     }, [requestDateQuery])
 
@@ -50,28 +49,25 @@ export const OrderPage: FC = () => {
         setQuery({
             ...query,
             ...{
-                type: orderType
-            }
+                type: orderType,
+            },
         })
     }, [orderType])
-
 
     useEffect(() => {
         setQuery({
             ...query,
-            page: page
+            page: page,
         })
     }, [page])
 
     useEffect(() => {
-        getListOrder(query);
+        getListOrder(query)
     }, [query])
 
-
     useEffect(() => {
-        getListOrder(query);
+        getListOrder(query)
     }, [])
-
 
     return (
         <Layout>
@@ -81,7 +77,6 @@ export const OrderPage: FC = () => {
                         <span className="icon-text has-text-info">
                             <h5 className="title">Orders</h5>
                         </span>
-
                     </div>
                 </div>
                 <div className="columns is-vcentered">
@@ -110,7 +105,7 @@ export const OrderPage: FC = () => {
                                     const to = dateUtils.dateToEpoch(endDate)
                                     setRequestDateQuery({
                                         from,
-                                        to
+                                        to,
                                     })
                                 }}
                             />
@@ -118,15 +113,15 @@ export const OrderPage: FC = () => {
                     </div>
                     <div className="column is-3 is-flex is-justify-content-flex-end">
                         <p></p>
-                        <NavLink className="button is-primary has-text-white" to={'/orders/create'}>
+                        <NavLink
+                            className="button is-primary has-text-white"
+                            to={'/orders/create/v2'}
+                        >
                             Create Order
                         </NavLink>
                     </div>
                 </div>
-                {data?.data && <OrderList
-                    onPageChange={handleOnPageChange}
-                    data={data?.data}
-                />}
+                {data?.data && <OrderList onPageChange={handleOnPageChange} data={data?.data} />}
             </div>
         </Layout>
     )
