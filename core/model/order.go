@@ -15,6 +15,8 @@ type Order struct {
 	Type      int       `gorm:"column:type"`
 	GoodSnapShotColumn
 	TimestampColumn
+	OrderItem []*OrderItem `gorm:"foreignKey:OrderID"`
+	CountItem int          `gorm:"column:count_item"`
 }
 
 func (m Order) BeforeCreate(tx *gorm.DB) (err error) {
