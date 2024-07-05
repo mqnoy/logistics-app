@@ -51,6 +51,7 @@ func main() {
 			&model.GoodStock{},
 			&model.Order{},
 			&model.User{},
+			&model.OrderItem{},
 		)
 
 		if err != nil {
