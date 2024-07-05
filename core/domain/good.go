@@ -17,6 +17,7 @@ type GoodUseCase interface {
 	SnapshotGood(code string) (result dto.EntitySnapshot, row *model.Good, err error)
 	IncreaseStock(ctx context.Context, param dto.UpdateParam[dto.GoodStockRequest]) error
 	DecreaseStock(ctx context.Context, param dto.UpdateParam[dto.GoodStockRequest]) error
+	DecreaseStockV2(ctx context.Context, param dto.UpdateParam[dto.GoodStockRequest]) error
 }
 
 type GoodRepository interface {
