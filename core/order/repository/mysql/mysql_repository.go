@@ -102,3 +102,12 @@ func (m mysqlOrderRepository) SelectOrderById(id string) (row *model.Order, err 
 
 	return row, nil
 }
+
+func (m mysqlOrderRepository) InsertOrderItem(row model.OrderItem) (*model.OrderItem, error) {
+	err := m.db.Create(&row).Error
+	return &row, err
+}
+
+func (m mysqlOrderRepository) UpdateOrderById(id string, values interface{}) error {
+	return m.db.Model(model.Order{}).Where("id = ?", id).Updates(values).Error
+}

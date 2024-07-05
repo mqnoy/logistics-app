@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/mqnoy/logistics-app/core/domain"
 	"github.com/mqnoy/logistics-app/core/dto"
+	"github.com/mqnoy/logistics-app/core/enum"
 	"github.com/mqnoy/logistics-app/core/handler"
 	"github.com/mqnoy/logistics-app/core/pkg/cerror"
 	"github.com/mqnoy/logistics-app/core/pkg/cvalidator"
@@ -31,6 +32,8 @@ func New(mux *chi.Mux, middlewareAuthorization domain.MiddlewareAuthorization, o
 		r.Post("/goods/out", handler.PostOrderOut)
 		r.Get("/goods", handler.GetListOrders)
 		r.Get("/{id}", handler.GetDetailOrder)
+		r.Post("/multiple/goods/in", handler.PostOrderMultipleIn)
+		r.Post("/multiple/goods/out", handler.PostOrderMultipleOut)
 	})
 
 }
@@ -121,4 +124,56 @@ func (h orderHandler) GetDetailOrder(w http.ResponseWriter, r *http.Request) {
 	result, err := h.orderUseCase.DetailOrder(param)
 
 	handler.ParseResponse(w, r, "GetDetailOrder", result, err)
+}
+
+func (h orderHandler) PostOrderMultipleIn(w http.ResponseWriter, r *http.Request) {
+	var request dto.OrderCreateMultipleRequest
+	if err := render.Bind(r, &request); err != nil {
+		handler.ParseResponse(w, r, "", err, cerror.WrapError(http.StatusBadRequest, err))
+		return
+	}
+
+	// validate payload
+	if err := cvalidator.ValidateStruct(&request); err != nil {
+		handler.ParseToErrorValidation(w, r, http.StatusBadRequest, cvalidator.ErrorValidator, err)
+		return
+	}
+
+	// perform with order type in
+	request.Type = enum.ORDER_IN
+	param := dto.CreateParam[dto.OrderCreateMultipleRequest]{
+		CreateValue: request,
+		Session:     dto.GetAuthorizedUser(r.Context()),
+	}
+
+	// call usecase
+	result, err := h.orderUseCase.MultipleOrderInOut(r.Context(), param)
+
+	handler.ParseResponse(w, r, "PostOrderMultipleIn", result, err)
+}
+
+func (h orderHandler) PostOrderMultipleOut(w http.ResponseWriter, r *http.Request) {
+	var request dto.OrderCreateMultipleRequest
+	if err := render.Bind(r, &request); err != nil {
+		handler.ParseResponse(w, r, "", err, cerror.WrapError(http.StatusBadRequest, err))
+		return
+	}
+
+	// validate payload
+	if err := cvalidator.ValidateStruct(&request); err != nil {
+		handler.ParseToErrorValidation(w, r, http.StatusBadRequest, cvalidator.ErrorValidator, err)
+		return
+	}
+
+	// perform with order type in
+	request.Type = enum.ORDER_OUT
+	param := dto.CreateParam[dto.OrderCreateMultipleRequest]{
+		CreateValue: request,
+		Session:     dto.GetAuthorizedUser(r.Context()),
+	}
+
+	// call usecase
+	result, err := h.orderUseCase.MultipleOrderInOut(r.Context(), param)
+
+	handler.ParseResponse(w, r, "PostOrderMultipleOut", result, err)
 }
