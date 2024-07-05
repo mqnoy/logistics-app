@@ -95,6 +95,7 @@ func (m mysqlOrderRepository) SelectAndCountOrder(param dto.ListParam[dto.Filter
 
 func (m mysqlOrderRepository) SelectOrderById(id string) (row *model.Order, err error) {
 	if err := m.db.
+		Preload("OrderItem").
 		First(&row, "id = ?", id).
 		Error; err != nil {
 		return nil, err
